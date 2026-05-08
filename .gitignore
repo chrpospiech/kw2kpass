@@ -1,0 +1,7 @@
+build
+kw2kpass.code-workspace
+.cache
+.venv
+.vscode
+__pycache__
+*.out

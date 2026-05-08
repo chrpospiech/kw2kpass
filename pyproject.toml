@@ -1,0 +1,10 @@
+[project]
+name = "kw2kpass"
+version = "0.1.0"
+authors = ["C. Pospiech <pospiech-HD@t-online.de>"]
+description = "Create KeePass database from Kwallet passwords"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pre-commit>=4.5.1",
+]
