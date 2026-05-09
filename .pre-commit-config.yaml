@@ -26,7 +26,7 @@ repos:
         language: ruby
         types: [markdown]
         entry: mdl
-        stages: [commit]
+        stages: [pre-commit]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
@@ -35,4 +35,4 @@ repos:
         language: python
         types_or: [python, markdown]
         entry: codespell
-        stages: [commit]
+        stages: [pre-commit]
