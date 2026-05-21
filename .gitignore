@@ -3,5 +3,9 @@ kw2kpass.code-workspace
 .cache
 .venv
 .vscode
+.ruff_cache
 __pycache__
 *.out
+creds.yaml
+kwallet*.so
+pwsafe*.so

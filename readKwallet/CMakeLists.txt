@@ -94,9 +94,8 @@ add_executable( readKwallet
 # See https://pybind11.readthedocs.io/en/stable/compiling.html
 # for details on pybind11_add_module.
 
-# temporarily disabled
-# pybind11_add_module( kwallet MODULE
-#   ${KW2PW_SOURCES} )
+pybind11_add_module( kwallet MODULE
+  ${KW2PW_SOURCES} )
 
 ######################################
 # Adding Qt5, Python and KDE libs    #
@@ -114,24 +113,24 @@ target_link_libraries (readKwallet
     ${Python3_LIBRARIES}
     )
 
-# target_link_libraries (kwallet PRIVATE
-#  	${Qt5Core_LIBRARIES}
-#  	${Qt5Gui_LIBRARIES}
-#  	${Qt5Widgets_LIBRARIES}
-#    ${Python3_LIBRARIES}
-#    )
+target_link_libraries (kwallet PRIVATE
+  	${Qt5Core_LIBRARIES}
+  	${Qt5Gui_LIBRARIES}
+  	${Qt5Widgets_LIBRARIES}
+    ${Python3_LIBRARIES}
+    )
 
 target_link_libraries (readKwallet
 	KF5::CoreAddons
 	KF5::Wallet)
-# target_link_libraries (kwallet PRIVATE
-#	KF5::CoreAddons
-#	KF5::Wallet)
+target_link_libraries (kwallet PRIVATE
+	KF5::CoreAddons
+	KF5::Wallet)
 
 ######################################
 # Defining Installation of targets   #
 ######################################
 
-# install( TARGETS kwallet
-#   DESTINATION .
-#  )
+install( TARGETS kwallet
+  DESTINATION .
+  )

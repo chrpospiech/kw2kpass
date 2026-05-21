@@ -23,7 +23,30 @@ enable_language(CXX)
 
 include(CheckCXXCompilerFlag)
 
-# This is a temporary setting.
+######################################
+# Find Python3 and pybind11          #
+# include dirs and libs              #
+######################################
+
+# To escape from version hell ( [py]Qt 5.9.2 in
+# python/3.8.11 versus  Qt > 5.12 as required
+# by KDE KWallet) switch to Kubuntu Python3
+# (version 3.8.10).
+
+find_package (Python3  REQUIRED
+	COMPONENTS Interpreter Development)
+list(APPEND CMAKE_PREFIX_PATH
+    "${CMAKE_SOURCE_DIR}/.venv/lib64/python3.12/site-packages/pybind11"
+)
+find_package (pybind11 REQUIRED)
+
+# Include path for Python header files
+include_directories(${Python3_INCLUDE_DIRS})
+
+# Include path for pybind11
+include_directories( ${pybind11_INCLUDE_DIRS} )
+
+# This is where the pybind modules should go
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(readKwallet)
