@@ -6,7 +6,6 @@
 import argparse
 import logging
 import re
-import sys
 
 logger = logging.getLogger("kw2pwsafe")
 
