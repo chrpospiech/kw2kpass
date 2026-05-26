@@ -36,8 +36,8 @@ def SetWalletFolder(wallet, Wfolder):
     if wallet.hasFolder(Wfolder):
         logger.info(f"folder {Wfolder} found")
     else:
-        print(f"No folder {Wfolder} found")
-        sys.exit(2)
+        logger.error(f"No folder {Wfolder} found")
+        raise SystemExit(2)
     if wallet.setFolder(Wfolder):
         logger.info(f"folder {Wfolder} set")
     else:
