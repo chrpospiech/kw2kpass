@@ -14,40 +14,16 @@
 # logger for verbose mode
 import logging
 import re
-import sys
 
 from cli import getOptionsAndDefaults
-
-from kwallet import WalletHandle, WalletIterator
+from kwallet import WalletIterator
+from wallet_utils import OpenWallet, SetWalletFolder
 
 logging.basicConfig(
     level=logging.WARNING,
     format="%(asctime)s %(levelname)s %(message)s",
 )
 logger = logging.getLogger("kw2pwsafe")
-
-# Python KF5/Qt5 interface ** access to Kwallet
-# Python interface to Password Safe V3 files
-# from pwsafe import PWSrecordHandle
-# from pwsafe import PWSfileHandle
-# This script allows to filter the entries with
-# a given regular expression.
-# This uses the standard-library `re` module.
-
-def OpenWallet(Wname):
-    """Open Kwallet "Wname".
-
-    @summary: Opens Kwallet "Wname"
-    @return: Handle to the open wallet.
-    """
-    wh = WalletHandle(Wname)
-    if not wh.wallet_is_open():
-        print(f"Wallet {Wname} not found")
-        sys.exit(2)
-    else:
-        logger.info(f"Wallet {Wname} opened")
-    return wh
-
 
 # def OpenSafe(safeName, safePword):
 #    """
@@ -104,16 +80,7 @@ def PrintWalletFolder(wallet, Wfolder, Wfilter):
     @param Wfolder: Kwallet folder
     @param Wfilter: Filter to filter entries.
     """
-    if wallet.hasFolder(Wfolder):
-        logger.info(f"folder {Wfolder} found")
-    else:
-        print(f"No folder {Wfolder} found")
-        sys.exit(2)
-    if wallet.setFolder(Wfolder):
-        logger.info(f"folder {Wfolder} set")
-    else:
-        print(f"No folder {Wfolder} could not be set")
-        sys.exit(2)
+    SetWalletFolder(wallet, Wfolder)
     for e in WalletIterator(wallet):
         uidFilter = re.compile(r"\@")
         title = str(e)
@@ -147,9 +114,9 @@ def PrintWalletFolder(wallet, Wfolder, Wfilter):
             str(uid)
         else:
             logger.debug("uid " + str(uid) + " is not an email address")
-        # if not Wfilter.search(str(uid) + str(host)):
-        #    logger.info("host " + str(host) + " has been filtered out")
-        #    continue
+        if not Wfilter.search(str(uid) + str(host)):
+            logger.info("host " + str(host) + " has been filtered out")
+            continue
         logger.info("Printing record for " + title)
         print("On host " + str(host) + ":")
         print("u = " + str(uid) + " pw = " + str(passwd))
