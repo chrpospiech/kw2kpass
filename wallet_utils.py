@@ -41,5 +41,5 @@ def SetWalletFolder(wallet, Wfolder):
     if wallet.setFolder(Wfolder):
         logger.info(f"folder {Wfolder} set")
     else:
-        print(f"No folder {Wfolder} could not be set")
+        logger.error(f"Folder {Wfolder} could not be set")
         sys.exit(2)
