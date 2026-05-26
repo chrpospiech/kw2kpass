@@ -11,12 +11,12 @@
 """
 
 # Standard python modules
-import getopt
-
 # logger for verbose mode
 import logging
 import re
 import sys
+
+from cli import getOptionsAndDefaults
 
 from kwallet import WalletHandle, WalletIterator
 
@@ -32,112 +32,7 @@ logger = logging.getLogger("kw2pwsafe")
 # from pwsafe import PWSfileHandle
 # This script allows to filter the entries with
 # a given regular expression.
-# This requires the module re
-
-
-def Usage():
-    """Print usage information."""
-    usageString = """
-    kw2pkpass.py *** Read Kwallet folders and translate into
-				 	KeePassXC databases
-
-    kw2pkpass.py [options] [arguments]
-    where
-    * only argument is the file name of the
-	  KeePassXC database - if not specified via option -f
-	* options are
-	-h, --help		Print this help text.
-	-v, --version	Print version number and exit.
-	-w, --wallet	Kwallet name (default kdewallet).
-	-m, --map		format: folder_name[:group]
-					Kwallet folder folder_name
-					(default folder_name Firefox).
-					Entries in this folder are stored in
-					group "group" in KeePassXC database.
-					Several --map option entries possible.
-	-f, --filename	Name of the KeePassXC database.
-	-p, --password	Password of the KeePassXC database.
-					*** This is a required option. ***
-	-F, --filter	Allow only records containing a substring
-					that matches a given regular expression
-	-a, --append	Append to an existing file
-					(temporarily disabled)
-	-V, --verbose	Verbose mode
-	-D, --debug		Debug mode (very verbose logging)
-	"""
-    print(usageString)
-
-
-def getOptionsAndDefaults():
-    """Sets defaults and interprets options.
-
-    @summary: Sets defaults and interprets options
-    @return: Kwallet, Kwallet folder, filter,
-    @return: safe name, safe password, safe group.
-    """
-    Wname = "kdewallet"
-    WsafeMap = {}
-    Wfilter = re.compile(r".*")
-    loglevel = "WARNING"
-    # append	  = False (not yet implemented)
-    try:
-        opts, args = getopt.getopt(
-            sys.argv[1:],
-            "hw:f:p:m:F:vVD",
-            ["help", "verbose", "debug", "version", "wallet=", "map=", "filename=", "password=", "filter="],
-        )
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        print(str(err))  # will print something like "option -a not recognized"
-        Usage()
-        sys.exit(2)
-    # The file name can be either passed as argument
-    # or with option -f
-    if args:
-        args[0]
-    for o, a in opts:
-        if o in {"-V", "--verbose"}:
-            loglevel = "INFO"
-        elif o in {"-D", "--debug"}:
-            loglevel = "DEBUG"
-        #        elif o in {"-v", "--version"}:
-        #            print("kw2pwsafe version {}.".format("2.0"))
-        #            sys.exit()
-        #        elif o in {"-h", "--help"}:
-        #            Usage()
-        #           sys.exit()
-        elif o in {"-w", "--wallet"}:
-            Wname = a
-        #       elif o in {"-f", "--filename"}:
-        #            safeName = a
-        #       elif o in {"-p", "--password"}:
-        #            safePword = a
-        #       elif o in {"-g", "--group"}:
-        #            pass
-        elif o in {"-F", "--filter"}:
-            Wfilter = re.compile(a)
-        elif o in {"-m", "--map"}:
-            StrList = a.split(":")
-            one = 1
-            two = 2
-            if len(StrList) == one:
-                WsafeMap[StrList[0]] = StrList[0]
-            elif len(StrList) == two:
-                WsafeMap[StrList[0]] = StrList[1]
-            else:
-                raise AssertionError("wrong map entry")
-        else:
-            raise AssertionError(f"unhandled option {o}")
-    #    if not safePword:
-    #        print("No password specified")
-    #        Usage()
-    #        sys.exit(2)
-    #    if len(WsafeMap) == 0:
-    #        WsafeMap["Firefox"] = "Firefox"
-    logger.setLevel(getattr(logging, loglevel))
-    logger.info(f"Logging level changed to {loglevel}")
-    return (Wname, Wfilter, WsafeMap)
-
+# This requires the module regex, which is part of the standard python library.
 
 def OpenWallet(Wname):
     """Open Kwallet "Wname".
