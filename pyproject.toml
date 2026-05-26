@@ -22,7 +22,7 @@ lint = [
 line-length = 120
 indent-width = 4
 
-target-version = "py37"
+target-version = "py312"
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
