@@ -19,8 +19,8 @@ def OpenWallet(Wname):
     """
     wh = WalletHandle(Wname)
     if not wh.wallet_is_open():
-        print(f"Wallet {Wname} not found")
-        sys.exit(2)
+        logger.error(f"Wallet {Wname} not found")
+        raise SystemExit(2)
     else:
         logger.info(f"Wallet {Wname} opened")
     return wh
