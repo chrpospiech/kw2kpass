@@ -16,14 +16,16 @@ def _build_parser() -> argparse.ArgumentParser:
         description="Read Kwallet folders and translate into KeePassXC databases.",
     )
     parser.add_argument(
-        "-w", "--wallet",
+        "-w",
+        "--wallet",
         dest="wallet",
         default="kdewallet",
         metavar="NAME",
         help="Kwallet name (default: kdewallet)",
     )
     parser.add_argument(
-        "-m", "--map",
+        "-m",
+        "--map",
         dest="maps",
         action="append",
         default=[],
@@ -36,7 +38,8 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "-F", "--filter",
+        "-F",
+        "--filter",
         dest="filter",
         default=".*",
         metavar="REGEX",
@@ -44,14 +47,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument(
-        "-V", "--verbose",
+        "-V",
+        "--verbose",
         dest="verbose",
         action="store_true",
         default=False,
         help="Verbose mode (INFO logging).",
     )
     verbosity.add_argument(
-        "-D", "--debug",
+        "-D",
+        "--debug",
         dest="debug",
         action="store_true",
         default=False,
