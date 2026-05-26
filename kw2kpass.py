@@ -32,7 +32,7 @@ logger = logging.getLogger("kw2pwsafe")
 # from pwsafe import PWSfileHandle
 # This script allows to filter the entries with
 # a given regular expression.
-# This requires the module regex, which is part of the standard python library.
+# This uses the standard-library `re` module.
 
 def OpenWallet(Wname):
     """Open Kwallet "Wname".
