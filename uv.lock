@@ -47,6 +47,7 @@ dependencies = [
     { name = "pybind11" },
     { name = "pyyaml" },
     { name = "rich" },
+    { name = "ruff" },
 ]
 
 [package.optional-dependencies]
@@ -60,6 +61,7 @@ requires-dist = [
     { name = "pybind11", specifier = "<3.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.8" },
+    { name = "ruff", specifier = ">=0.15.14" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.15.14" },
 ]
 provides-extras = ["lint"]
