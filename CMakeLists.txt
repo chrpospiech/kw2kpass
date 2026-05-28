@@ -50,5 +50,4 @@ include_directories( ${pybind11_INCLUDE_DIRS} )
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(readKwallet)
-# temporarily disabled
-# add_subdirectory(writePwsafe)
+add_subdirectory(writeKeePass)
