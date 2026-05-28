@@ -9,9 +9,15 @@ file(GLOB KEEPASS_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/libkeepass/src/*.cc"
 )
 
+list(APPEND KEEPASS_SOURCES
+  "${CMAKE_CURRENT_SOURCE_DIR}/wrap_pybind_kp.cpp"
+)
+
 ######################################
 # Name of the library                #
 ######################################
+
+find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 
 pybind11_add_module(keepass MODULE
   ${KEEPASS_SOURCES}
@@ -23,6 +29,14 @@ pybind11_add_module(keepass MODULE
 
 target_include_directories(keepass PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/libkeepass/src
+)
+
+target_link_libraries(keepass PRIVATE OpenSSL::Crypto)
+
+add_custom_command(TARGET keepass POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:keepass>
+    "${CMAKE_SOURCE_DIR}/$<TARGET_FILE_NAME:keepass>"
 )
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
