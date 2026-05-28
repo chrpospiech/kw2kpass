@@ -130,13 +130,5 @@ target_link_libraries (kwallet PRIVATE
 add_custom_command(TARGET kwallet POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:kwallet>
-    "${CMAKE_CURRENT_SOURCE_DIR}/$<TARGET_FILE_NAME:kwallet>"
+    "${CMAKE_SOURCE_DIR}/$<TARGET_FILE_NAME:kwallet>"
 )
-
-######################################
-# Defining Installation of targets   #
-######################################
-
-install( TARGETS kwallet
-  DESTINATION .
-  )
