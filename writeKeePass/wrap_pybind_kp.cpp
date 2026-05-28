@@ -32,8 +32,8 @@ PYBIND11_MODULE(keepass, m) {
     py::register_exception<keepass::PasswordError>(m, "PasswordError");
     py::register_exception<keepass::FormatError>(m, "FormatError");
     py::register_exception<keepass::InternalError>(m, "InternalError");
-    py::register_exception<keepass::IoError>(m, "IoError");
-    py::register_exception<keepass::FileNotFoundError>(m, "FileNotFoundError");
+    auto io_error = py::register_exception<keepass::IoError>(m, "IoError");
+    py::register_exception<keepass::FileNotFoundError>(m, "FileNotFoundError", io_error.ptr());
 
     py::class_<keepass::protect<std::string>>(m, "ProtectedString")
         .def(py::init<>())
