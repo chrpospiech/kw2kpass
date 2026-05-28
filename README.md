@@ -31,12 +31,16 @@ this tool.
 
 Initialize the `libkeepass` submodule before configuring the build:
 
-`git submodule update --init`
+```sh
+git submodule update --init
+```
 
 Configure and build the project with CMake:
 
-`cmake -S . -B build`
-`cmake --build build`
+```sh
+cmake -S . -B build
+cmake --build build
+```
 
 ## Usage
 
