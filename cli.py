@@ -45,6 +45,24 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="REGEX",
         help="Only process entries whose uid+host matches REGEX (default: .*).",
     )
+    parser.add_argument(
+        "-i",
+        "-infile",
+        dest="infile",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Input file path (default: None).",
+    )
+    parser.add_argument(
+        "-o",
+        "-outfile",
+        dest="outfile",
+        type=str,
+        default="keepass.kdbx",
+        metavar="FILE",
+        help="Output file path (default: keepass.kdbx).",
+    )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument(
         "-V",
@@ -69,9 +87,16 @@ def getOptionsAndDefaults(argv=None):
     """Parse command-line options and return runtime configuration.
 
     @summary: Parses argv (defaults to sys.argv[1:]) and returns
-              the wallet name, compiled filter regex, and folder→group map.
+              the wallet name, compiled filter regex, folder→group map,
+              input file, and output file.
     @param argv: Argument list to parse (None → sys.argv[1:]).
-    @return: Tuple (wallet_name: str, filter: re.Pattern, map: dict[str, str]).
+    @return: Tuple (
+        wallet_name: str,
+        filter: re.Pattern,
+        map: dict[str, str],
+        infile: str | None,
+        outfile: str,
+    ).
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
@@ -101,4 +126,4 @@ def getOptionsAndDefaults(argv=None):
         else:
             wsafe_map[parts[0]] = parts[1]
 
-    return (args.wallet, wfilter, wsafe_map)
+    return (args.wallet, wfilter, wsafe_map, args.infile, args.outfile)
