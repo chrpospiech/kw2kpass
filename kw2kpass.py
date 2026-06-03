@@ -16,6 +16,7 @@ import logging
 import re
 
 from cli import getOptionsAndDefaults
+from keepass_utils import close_database, open_database
 from kwallet import WalletIterator
 from wallet_utils import OpenWallet, SetWalletFolder
 
@@ -128,13 +129,13 @@ def main():
     Output is temporarily written to stdout for debugging purposes.
     The final version will write directly to the database.
     """
-    Wname, Wfilter, WsafeMap = getOptionsAndDefaults()
-    # psafe = OpenSafe(safeName, safePword)
+    Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kpasswd = getOptionsAndDefaults()
+    database = open_database(Kinfile, Kpasswd)
     wallet = OpenWallet(Wname)
     # for Wfolder in WsafeMap:
     # pgroup = WsafeMap[Wfolder]
     # CopyWalletFolder(wallet, Wfolder, Wfilter, psafe, pgroup)
-    # psafe.Close()
+    close_database(database, Koutfile, Kpasswd)
     for Wfolder in WsafeMap:
         PrintWalletFolder(wallet, Wfolder, Wfilter)
 
