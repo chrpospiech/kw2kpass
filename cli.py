@@ -63,6 +63,15 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="FILE",
         help="Output file path (default: keepass.kdbx).",
     )
+    parser.add_argument(
+        "-p",
+        "--passwd",
+        dest="passwd",
+        type=str,
+        default=None,
+        metavar="PASSWD",
+        help="KeePass password (default: None).",
+    )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument(
         "-V",
@@ -88,7 +97,7 @@ def getOptionsAndDefaults(argv=None):
 
     @summary: Parses argv (defaults to sys.argv[1:]) and returns
               the wallet name, compiled filter regex, folder→group map,
-              input file, and output file.
+              input file, output file, and KeePass password.
     @param argv: Argument list to parse (None → sys.argv[1:]).
     @return: Tuple (
         wallet_name: str,
@@ -96,6 +105,7 @@ def getOptionsAndDefaults(argv=None):
         map: dict[str, str],
         infile: str | None,
         outfile: str,
+        passwd: str | None,
     ).
     """
     parser = _build_parser()
@@ -126,4 +136,11 @@ def getOptionsAndDefaults(argv=None):
         else:
             wsafe_map[parts[0]] = parts[1]
 
-    return (args.wallet, wfilter, wsafe_map, args.infile, args.outfile)
+    return (
+        args.wallet,
+        wfilter,
+        wsafe_map,
+        args.infile,
+        args.outfile,
+        args.passwd,
+    )

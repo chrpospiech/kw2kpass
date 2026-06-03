@@ -129,13 +129,13 @@ def main():
     Output is temporarily written to stdout for debugging purposes.
     The final version will write directly to the database.
     """
-    Wname, Wfilter, WsafeMap, Kinfile, Koutfile = getOptionsAndDefaults()
-    database = open_database(Kinfile)
+    Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kpasswd = getOptionsAndDefaults()
+    database = open_database(Kinfile, Kpasswd)
     wallet = OpenWallet(Wname)
     # for Wfolder in WsafeMap:
     # pgroup = WsafeMap[Wfolder]
     # CopyWalletFolder(wallet, Wfolder, Wfilter, psafe, pgroup)
-    close_database(database, Koutfile)
+    close_database(database, Koutfile, Kpasswd)
     for Wfolder in WsafeMap:
         PrintWalletFolder(wallet, Wfolder, Wfilter)
 
