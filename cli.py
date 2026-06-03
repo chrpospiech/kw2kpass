@@ -47,7 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-i",
-        "-infile",
+        "--infile",
         dest="infile",
         type=str,
         default=None,
