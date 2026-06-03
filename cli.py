@@ -56,7 +56,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-o",
-        "-outfile",
+        "--outfile",
         dest="outfile",
         type=str,
         default="keepass.kdbx",
