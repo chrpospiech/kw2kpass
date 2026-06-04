@@ -16,9 +16,9 @@ import logging
 import re
 
 from cli import get_options_and_defaults
-from keepass_utils import close_database, open_database
+from keepass_utils import close_database, find_or_create_entry, open_database
 from kwallet import WalletIterator
-from wallet_utils import find_or_create_entry, open_wallet, set_wallet_folder
+from wallet_utils import open_wallet, set_wallet_folder
 
 logging.basicConfig(
     level=logging.WARNING,

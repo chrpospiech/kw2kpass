@@ -4,10 +4,6 @@
 """Utility functions for accessing KWallet."""
 
 import logging
-from typing import cast
-
-from pykeepass import PyKeePass
-from pykeepass.entry import Entry
 
 from kwallet import WalletHandle
 
@@ -46,37 +42,3 @@ def set_wallet_folder(wallet, Wfolder):
     else:
         logger.error(f"Folder {Wfolder} could not be set")
         raise SystemExit(2)
-
-
-def find_or_create_entry(database: PyKeePass, group: str, title: str) -> Entry:
-    """Find an entry by group name and title, or create it if absent.
-
-    Searches the root group's direct subgroups for one whose name matches
-    *group*, then looks for an entry whose title matches *title*.  If the
-    entry is found it is returned unchanged.  If only the group is missing
-    it is created under root.  In either missing case a new Entry with the
-    given title is appended to the group and returned.
-
-    @param database: Open KeePass database.
-    @param group: Name of the target group (created under root if absent).
-    @param title: Title of the entry to find or create.
-    @return: The existing or newly created Entry.
-    """
-    target_group = database.find_groups(name=group, first=True)
-
-    if target_group is None:
-        logger.info(f"Group '{group}' not found, creating it")
-        target_group = database.add_group(database.root_group, group)
-
-    # Search for an existing entry with the given title.
-    entry = database.find_entries(title=title, group=target_group, first=True)
-    if entry is not None:
-        logger.debug(f"Entry '{title}' found in group '{group}'")
-        return cast(Entry, entry)
-
-    # Create a new entry.
-    logger.info(f"Entry '{title}' not found in group '{group}', creating it")
-    return cast(
-        Entry,
-        database.add_entry(target_group, title, username="", password="", url=""),
-    )
