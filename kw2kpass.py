@@ -72,7 +72,7 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
         entry = find_or_create_entry(dbase, group, title)
         entry.set_url(ProtectedString(str(host)))
         entry.set_username(ProtectedString(str(uid)))
-        entry.set_password(ProtectedString(str(passwd)))
+        entry.set_password(ProtectedString(str(passwd), True))
 
 
 def main():
