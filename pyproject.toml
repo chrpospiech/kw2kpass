@@ -8,6 +8,7 @@ requires-python = ">=3.12"
 dependencies = [
   "pre-commit",
   "pybind11 < 3.0.0",
+  "pykeepass>=4.1.1.post1",
   'PyYAML >= 6.0.0',
   'rich >= 13.8',
   "ruff>=0.15.14",

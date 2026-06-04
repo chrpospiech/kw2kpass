@@ -5,31 +5,25 @@
 
 import logging
 
-from keepass import Database, KdbxFile, Key
+from pykeepass import PyKeePass, create_database
 
 logger = logging.getLogger("kw2kpass")
 
 
-def _build_key(Kpasswd: str | None) -> Key:
-    """Create a KeePass key from an optional password."""
-    logger.debug("Creating KeePass key (password provided: %s)", Kpasswd is not None)
-    key = Key()
-    if Kpasswd is not None:
-        key.SetPassword(Kpasswd)
-    return key
-
-
-def open_database(Kinfile: str | None, Kpasswd: str | None) -> Database:
+def open_database(Kinfile: str | None, Koutfile: str, Kpasswd: str | None) -> PyKeePass:
     """Open an existing KDBX database, or return a new empty database."""
     if Kinfile is None:
-        logger.info("Creating new empty KeePass database")
-        return Database()
+        logger.info("Creating new empty KeePass database at %s", Koutfile)
+        # pykeepass requires a path when creating a database.
+        return create_database(Koutfile, password=(Kpasswd or ""))
 
     logger.info("Opening KeePass database from %s", Kinfile)
-    return KdbxFile().Import(Kinfile, _build_key(Kpasswd))
+    return PyKeePass(Kinfile, password=Kpasswd)
 
 
-def close_database(database: Database, Koutfile: str, Kpasswd: str | None) -> None:
+def close_database(database: PyKeePass, Koutfile: str, Kpasswd: str | None) -> None:
     """Export a database to KDBX format."""
+    if Kpasswd is not None:
+        database.password = Kpasswd
     logger.info("Exporting KeePass database to %s", Koutfile)
-    KdbxFile().Export(Koutfile, database, _build_key(Kpasswd))
+    database.save(Koutfile)
