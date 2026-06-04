@@ -35,7 +35,7 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
     @param Wfolder: Kwallet folder
     @param Wfilter: Filter to filter entries
     @param dbase: KeePassXC database handle
-    @param group: KeePassXC group
+    @param group: KeePassXC group name (created under root if absent)
     """
     set_wallet_folder(wallet, Wfolder)
     for e in WalletIterator(wallet):
