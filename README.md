@@ -23,17 +23,7 @@ this tool.
    - sudo apt-get install libkf5solid-dev libkf5solid-doc
    - sudo apt-get install libkf5wallet-dev
 
-- OpenSSL Crypto development headers
-
-   - sudo apt-get install libssl-dev
-
 ### Building the libraries
-
-Initialize the `libkeepass` submodule before configuring the build:
-
-```sh
-git submodule update --init
-```
 
 Configure and build the project with CMake:
 

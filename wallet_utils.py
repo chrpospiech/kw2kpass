@@ -4,8 +4,11 @@
 """Utility functions for accessing KWallet."""
 
 import logging
+from typing import cast
 
-from keepass import Database, Entry, Group, ProtectedString
+from pykeepass import PyKeePass
+from pykeepass.entry import Entry
+
 from kwallet import WalletHandle
 
 logger = logging.getLogger("kw2kpass")
@@ -45,7 +48,7 @@ def set_wallet_folder(wallet, Wfolder):
         raise SystemExit(2)
 
 
-def find_or_create_entry(database: Database, group: str, title: str) -> Entry:
+def find_or_create_entry(database: PyKeePass, group: str, title: str) -> Entry:
     """Find an entry by group name and title, or create it if absent.
 
     Searches the root group's direct subgroups for one whose name matches
@@ -59,33 +62,21 @@ def find_or_create_entry(database: Database, group: str, title: str) -> Entry:
     @param title: Title of the entry to find or create.
     @return: The existing or newly created Entry.
     """
-    root = database.root()
-    if root is None:
-        root = Group()
-        database.set_root(root)
-
-    # Locate group under root.
-    target_group: Group | None = None
-    for g in root.Groups():
-        if g.name() == group:
-            target_group = g
-            break
+    target_group = database.find_groups(name=group, first=True)
 
     if target_group is None:
         logger.info(f"Group '{group}' not found, creating it")
-        target_group = Group()
-        target_group.set_name(group)
-        root.AddGroup(target_group)
+        target_group = database.add_group(database.root_group, group)
 
     # Search for an existing entry with the given title.
-    for entry in target_group.Entries():
-        if entry.title().value() == title:
-            logger.debug(f"Entry '{title}' found in group '{group}'")
-            return entry
+    entry = database.find_entries(title=title, group=target_group, first=True)
+    if entry is not None:
+        logger.debug(f"Entry '{title}' found in group '{group}'")
+        return cast(Entry, entry)
 
     # Create a new entry.
     logger.info(f"Entry '{title}' not found in group '{group}', creating it")
-    new_entry = Entry()
-    new_entry.set_title(ProtectedString(title))
-    target_group.AddEntry(new_entry)
-    return new_entry
+    return cast(
+        Entry,
+        database.add_entry(target_group, title, username="", password="", url=""),
+    )

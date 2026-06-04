@@ -1,3 +1,0 @@
-[submodule "writeKeePass/libkeepass"]
-	path = writeKeePass/libkeepass
-	url = https://github.com/kindahl/libkeepass

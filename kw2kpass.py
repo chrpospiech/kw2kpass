@@ -16,7 +16,6 @@ import logging
 import re
 
 from cli import get_options_and_defaults
-from keepass import ProtectedString
 from keepass_utils import close_database, open_database
 from kwallet import WalletIterator
 from wallet_utils import find_or_create_entry, open_wallet, set_wallet_folder
@@ -70,15 +69,15 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
         logger.debug(f"On host {host}:")
         logger.debug(f"u = {uid} (password redacted)")
         entry = find_or_create_entry(dbase, group, title)
-        entry.set_url(ProtectedString(str(host)))
-        entry.set_username(ProtectedString(str(uid)))
-        entry.set_password(ProtectedString(str(passwd), True))
+        entry.url = str(host)
+        entry.username = str(uid)
+        entry.password = str(passwd)
 
 
 def main():
     """Main loop of extracting from Kwallet and adding to KeePassXC database."""
     Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kpasswd = get_options_and_defaults()
-    database = open_database(Kinfile, Kpasswd)
+    database = open_database(Kinfile, Koutfile, Kpasswd)
     wallet = open_wallet(Wname)
     for Wfolder in WsafeMap:
         group = WsafeMap[Wfolder]
