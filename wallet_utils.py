@@ -8,7 +8,7 @@ import sys
 
 from kwallet import WalletHandle
 
-logger = logging.getLogger("kw2pwsafe")
+logger = logging.getLogger("kw2kpass")
 
 
 def OpenWallet(Wname):

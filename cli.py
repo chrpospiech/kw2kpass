@@ -7,7 +7,7 @@ import argparse
 import logging
 import re
 
-logger = logging.getLogger("kw2pwsafe")
+logger = logging.getLogger("kw2kpass")
 
 
 def _build_parser() -> argparse.ArgumentParser:

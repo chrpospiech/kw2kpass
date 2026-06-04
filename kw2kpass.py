@@ -24,7 +24,7 @@ logging.basicConfig(
     level=logging.WARNING,
     format="%(asctime)s %(levelname)s %(message)s",
 )
-logger = logging.getLogger("kw2pwsafe")
+logger = logging.getLogger("kw2kpass")
 
 
 # def CopyWalletFolder(wallet, Wfolder, Wfilter, psafe, pgroup):
