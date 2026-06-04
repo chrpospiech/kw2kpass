@@ -34,11 +34,11 @@ def close_database(database: PyKeePass, Koutfile: str, Kpasswd: str | None) -> N
 def find_or_create_entry(database: PyKeePass, group: str, title: str) -> Entry:
     """Find an entry by group name and title, or create it if absent.
 
-    Searches the root group's direct subgroups for one whose name matches
-    *group*, then looks for an entry whose title matches *title*.  If the
-    entry is found it is returned unchanged.  If only the group is missing
-    it is created under root.  In either missing case a new Entry with the
-    given title is appended to the group and returned.
+    Searches for a group whose name matches *group*, then looks for an entry
+    in that group whose title matches *title*. If the entry is found it is
+    returned unchanged. If the group is missing it is created under the root
+    group. In either missing case, a new Entry with the given title is
+    appended to the group and returned.
 
     @param database: Open KeePass database.
     @param group: Name of the target group (created under root if absent).
