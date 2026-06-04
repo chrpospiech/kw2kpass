@@ -68,7 +68,7 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
             logger.debug(f"entry {title} is a map entry")
         logger.info(f"Copying record for {title}")
         logger.debug(f"On host {host}:")
-        logger.debug(f"u = {uid} pw = {passwd}")
+        logger.debug(f"u = {uid} (password redacted)")
         entry = find_or_create_entry(dbase, group, title)
         entry.set_url(ProtectedString(str(host)))
         entry.set_username(ProtectedString(str(uid)))
