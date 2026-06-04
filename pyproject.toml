@@ -1,6 +1,6 @@
 [project]
 name = "kw2kpass"
-version = "0.1.0"
+version = "1.0.0"
 author = "C. Pospiech <chrpospiech@magenta.de>"
 description = "Create KeePass database from Kwallet passwords"
 readme = "README.md"
