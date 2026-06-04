@@ -47,10 +47,6 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
         if passwd == "n/a":
             logger.debug(f"entry {title}  has no password")
             continue
-        # Skip the entry if it does not match the filter
-        if not Wfilter.search(title):
-            logger.info(f"entry {title} has been filtered out")
-            continue
         """
 		Entries in Kwallet can be password or map entries;
 		password entries return empty username and hostname.
@@ -66,6 +62,10 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
                 host = titleParts[0]
         else:
             logger.debug(f"entry {title} is a map entry")
+        # Skip the entry if it does not match the filter
+        if not Wfilter.search(f"{uid}{host}"):
+            logger.info(f"entry {title} has been filtered out")
+            continue
         logger.info(f"Copying record for {title}")
         logger.debug(f"On host {host}:")
         logger.debug(f"u = {uid} (password redacted)")
