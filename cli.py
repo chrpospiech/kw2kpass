@@ -92,7 +92,7 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def getOptionsAndDefaults(argv=None):
+def get_options_and_defaults(argv=None):
     """Parse command-line options and return runtime configuration.
 
     @summary: Parses argv (defaults to sys.argv[1:]) and returns

@@ -4,14 +4,14 @@
 """Utility functions for accessing KWallet."""
 
 import logging
-import sys
 
+from keepass import Database, Entry, Group, ProtectedString
 from kwallet import WalletHandle
 
 logger = logging.getLogger("kw2kpass")
 
 
-def OpenWallet(Wname):
+def open_wallet(Wname):
     """Open Kwallet "Wname".
 
     @summary: Opens Kwallet "Wname"
@@ -26,7 +26,7 @@ def OpenWallet(Wname):
     return wh
 
 
-def SetWalletFolder(wallet, Wfolder):
+def set_wallet_folder(wallet, Wfolder):
     """Validate and set the active folder in an open wallet.
 
     @summary: Checks that Wfolder exists in wallet and sets it as active.
@@ -42,4 +42,50 @@ def SetWalletFolder(wallet, Wfolder):
         logger.info(f"folder {Wfolder} set")
     else:
         logger.error(f"Folder {Wfolder} could not be set")
-        sys.exit(2)
+        raise SystemExit(2)
+
+
+def find_or_create_entry(database: Database, group: str, title: str) -> Entry:
+    """Find an entry by group name and title, or create it if absent.
+
+    Searches the root group's direct subgroups for one whose name matches
+    *group*, then looks for an entry whose title matches *title*.  If the
+    entry is found it is returned unchanged.  If only the group is missing
+    it is created under root.  In either missing case a new Entry with the
+    given title is appended to the group and returned.
+
+    @param database: Open KeePass database.
+    @param group: Name of the target group (created under root if absent).
+    @param title: Title of the entry to find or create.
+    @return: The existing or newly created Entry.
+    """
+    root = database.root()
+    if root is None:
+        root = Group()
+        database.set_root(root)
+
+    # Locate group under root.
+    target_group: Group | None = None
+    for g in root.Groups():
+        if g.name() == group:
+            target_group = g
+            break
+
+    if target_group is None:
+        logger.info(f"Group '{group}' not found, creating it")
+        target_group = Group()
+        target_group.set_name(group)
+        root.AddGroup(target_group)
+
+    # Search for an existing entry with the given title.
+    for entry in target_group.Entries():
+        if entry.title().value() == title:
+            logger.debug(f"Entry '{title}' found in group '{group}'")
+            return entry
+
+    # Create a new entry.
+    logger.info(f"Entry '{title}' not found in group '{group}', creating it")
+    new_entry = Entry()
+    new_entry.set_title(ProtectedString(title))
+    target_group.AddEntry(new_entry)
+    return new_entry
