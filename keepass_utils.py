@@ -7,7 +7,7 @@ import logging
 
 from keepass import Database, KdbxFile, Key
 
-logger = logging.getLogger("kw2pwsafe")
+logger = logging.getLogger("kw2kpass")
 
 
 def _build_key(Kpasswd: str | None) -> Key:

@@ -24,20 +24,7 @@ logging.basicConfig(
     level=logging.WARNING,
     format="%(asctime)s %(levelname)s %(message)s",
 )
-logger = logging.getLogger("kw2pwsafe")
-
-# def OpenSafe(safeName, safePword):
-#    """
-#    @summary: Opens KeePassXC database "safeName"
-#    @return: Handle to the open database
-#    """
-#    pws = PWSfileHandle(safeName, safePword)
-#    if not pws.statusOK():
-#        print("KeePassXC database {0} not found".format(safeName))
-#        sys.exit(2)
-#    else:
-#       logger.info("KeePassXC database {0} opened".format(safeName))
-#    return pws
+logger = logging.getLogger("kw2kpass")
 
 
 # def CopyWalletFolder(wallet, Wfolder, Wfilter, psafe, pgroup):
