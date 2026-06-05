@@ -47,7 +47,7 @@ sudo apt-get install \
 Configure and compile as follows.
 
 ```sh
-cmake -S . -B build
+cmake -S [.|<project_root>] -B build
 cmake --build build
 ```
 
