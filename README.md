@@ -124,7 +124,8 @@ python kw2kpass.py \
 Run linting/format checks with Ruff as configured in `pyproject.toml`.
 
 ```sh
-uv run ruff check [--fix] .
+uv run ruff check .
+uv run ruff check --fix .
 uv run ruff format .
 ```
 
