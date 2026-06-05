@@ -44,10 +44,10 @@ sudo apt-get install \
 
 ## Build
 
-Configure and compile:
+Configure and compile as follows.
 
 ```sh
-cmake -S . -B build
+cmake -S [.|<project_root>] -B build
 cmake --build build
 ```
 
@@ -56,10 +56,17 @@ the Python code can import it.
 
 ## Usage
 
-Run:
+Run either
 
 ```sh
+source <project_root>/.venv/bin/activate
 python kw2kpass.py [OPTIONS]
+```
+
+or
+
+```sh
+uv run kw2kpass.py [OPTIONS]
 ```
 
 ### Options
@@ -117,6 +124,12 @@ python kw2kpass.py \
 Run linting/format checks with Ruff as configured in `pyproject.toml`.
 
 ```sh
-uv run ruff check .
+uv run ruff check [--fix] .
 uv run ruff format .
+```
+
+Alternatively, `pre-commit` can be installed like this.
+
+```sh
+uv run pre-commit install
 ```
