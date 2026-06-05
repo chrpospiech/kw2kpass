@@ -44,10 +44,10 @@ sudo apt-get install \
 
 ## Build
 
-Configure and compile as follows.
+Configure and compile as follows after changing directory to project root.
 
 ```sh
-cmake -S [.|<project_root>] -B build
+cmake -S . -B build
 cmake --build build
 ```
 
@@ -56,10 +56,10 @@ the Python code can import it.
 
 ## Usage
 
-Run either
+From project root run either
 
 ```sh
-source <project_root>/.venv/bin/activate
+source .venv/bin/activate
 python kw2kpass.py [OPTIONS]
 ```
 
