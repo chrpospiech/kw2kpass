@@ -1,63 +1,136 @@
 # kw2kpass
 
-## Introduction
+kw2kpass reads entries from KDE KWallet folders and writes them into a KeePass
+KDBX database.
 
 ## Features
 
-## Installation
+- Read credentials from a selected KWallet (default: `kdewallet`).
+- Map one or more KWallet folders to KeePass groups.
+- Filter entries with a regex against `username + hostname`.
+- Create a new KeePass database or update an existing one.
+- Build includes a local `kwallet` Python extension (pybind11 + Qt5 + KF5).
 
-### Prerequisites
+## Requirements
 
-A couple of prerequisites need to be installed for
-this tool.
+### Python dependencies
 
-- Python, Qt and pybind
-  This now handled via pyproject.toml and uv[.lock].
+- Python 3.12+
+- `pykeepass`
+- `pybind11`
+- `PyYAML`
+- `rich`
 
-   - rm -rf ~/.venv
-   - uv sync
+Install with:
 
-- KDE 5 Framework (kf5)
+```sh
+uv sync
+```
 
-   - sudo apt-get install libkf5coreaddons-dev libkf5coreaddons-doc
-   - sudo apt-get install libkf5solid-dev libkf5solid-doc
-   - sudo apt-get install libkf5wallet-dev
+### System dependencies (Linux/KDE)
 
-### Building the libraries
+Build requires CMake, Qt5 and KDE Framework 5 development packages.
 
-Configure and build the project with CMake:
+Example on Debian/Ubuntu:
+
+```sh
+sudo apt-get install \
+   cmake \
+   qtbase5-dev \
+   libkf5coreaddons-dev \
+   libkf5solid-dev \
+   libkf5wallet-dev
+```
+
+## Build
+
+Configure and compile as follows after changing directory to project root.
 
 ```sh
 cmake -S . -B build
 cmake --build build
 ```
 
+After build, the `kwallet` extension module is copied to the project root so
+the Python code can import it.
+
 ## Usage
 
-Options:
+From project root run either
 
-- tbd
-- `-D, --dry-run`: Do not execute DB writes.
-- `-v, --verbose`: Verbose output.
+```sh
+source .venv/bin/activate
+python kw2kpass.py [OPTIONS]
+```
 
-## License
+or
 
-See LICENSE for details.
+```sh
+uv run kw2kpass.py [OPTIONS]
+```
 
-## Hints for Developers
+### Options
 
-The following needs to be reworked!
+- `-w, --wallet NAME`
+   KWallet name (default: `kdewallet`).
+- `-m, --map FOLDER[:GROUP]`
+   Map a KWallet folder to a KeePass group. Can be repeated.
+   If `GROUP` is omitted, folder name is used.
+- `-F, --filter REGEX`
+   Only process entries where `username + hostname` matches regex
+   (default: `.*`).
+- `-i, --infile FILE`
+   Existing input KDBX file. If omitted, a new database is created.
+- `-o, --outfile FILE`
+   Output KDBX path (default: `keepass.kdbx`).
+- `-p, --passwd PASSWD`
+   KeePass password.
+- `-V, --verbose`
+   Enable INFO logging.
+- `-D, --debug`
+   Enable DEBUG logging.
 
-The repo contains linter configuration files `rustfmt.toml`,
-`.codespell.dictionary`, and `.pre-commit-config.yaml`.
-The developer is strongly encouraged to use `pre-commit`
-with these configuration files to maintain code quality.
+### Examples
 
-To enable `pre-commit` using `uv`:
+Create a new database from one folder:
 
-- `uv init`
-- `rm .python-version main.py`
-- `uv add pre-commit`
-- `source .venv/bin/activate`
-- `pre-commit run --all`
-- `pre-commit install`
+```sh
+python kw2kpass.py \
+   -m Chromium\ Form\ Data:Browser \
+   -o keepass.kdbx \
+   -p 'change-me'
+```
+
+Import multiple folders into an existing database and filter hosts:
+
+```sh
+python kw2kpass.py \
+   -i existing.kdbx \
+   -o updated.kdbx \
+   -p 'change-me' \
+   -m Chromium\ Form\ Data:Browser \
+   -m Network\ Management:WiFi \
+   -F 'github|gitlab|example\\.com'
+```
+
+## Notes
+
+- If a wallet folder does not exist, execution exits with status 2.
+- Entries with password `n/a` are skipped.
+- Existing KeePass entries are matched by `(group, title)` and updated in place.
+
+## Developer notes
+
+Run linting/format checks with Ruff as configured in `pyproject.toml`.
+
+```sh
+uv run ruff check .
+uv run ruff check --fix .
+uv run ruff format .
+```
+
+Alternatively, `pre-commit` can be installed like this.
+
+```sh
+uv run pre-commit install
+```
