@@ -161,7 +161,6 @@ dependencies = [
     { name = "pykeepass" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "ruff" },
 ]
 
 [package.optional-dependencies]
@@ -176,7 +175,6 @@ requires-dist = [
     { name = "pykeepass", specifier = ">=4.1.1.post1" },
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.8" },
-    { name = "ruff", specifier = ">=0.15.16" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.15.16" },
 ]
 provides-extras = ["lint"]
