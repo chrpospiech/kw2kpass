@@ -1,13 +1,13 @@
 
 
 add_test(
-    NAME libs_exist
-    COMMAND ${PYTHON_SCRIPT_DIRECTORY}/run_libs_exist.py
+    NAME cli_options
+    COMMAND uv run ${CMAKE_CURRENT_SOURCE_DIR}/run_cli_options.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set_property(
-    TEST libs_exist
+    TEST cli_options
     PROPERTY ENVIRONMENT
-    LIB_LOCATION=${CMAKE_BINARY_DIR}/src
+    PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${PYTHONPATH}
 )

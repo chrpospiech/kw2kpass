@@ -8,4 +8,4 @@
 ######################################
 
 add_subdirectory(cli_options)
-add_subdirectory(cli_errors)
+# add_subdirectory(whatever)
