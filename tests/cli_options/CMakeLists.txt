@@ -1,0 +1,13 @@
+
+
+add_test(
+    NAME cli_options
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run_cli_options.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+set_property(
+    TEST cli_options
+    PROPERTY ENVIRONMENT
+    PYTHONPATH=${CMAKE_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}:$ENV{PYTHONPATH}
+)
