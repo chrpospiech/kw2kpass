@@ -3,7 +3,7 @@
 #        CMakeLists.txt for converter from Kwallet to KeePassXC
 #
 #        Created  on: May  09, 2026
-#        Modified on:
+#        Modified on: June 07, 2026
 #        Author: Dr. Christoph Pospiech
 #
 #***********************************************************************
@@ -12,15 +12,19 @@ cmake_minimum_required(VERSION 3.20.0)
 
 project(kw2kpass)
 
-# Cmake modules/macros are in a subdirectory to keep this file cleaner
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+######################################
+# Cmake modules/macros are in a      #
+# subdirectory to keep this file     #
+# cleaner.                           #
+######################################
 
-enable_language(CXX)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 ###########################################
 # compiler tests                          #
 ###########################################
 
+enable_language(CXX)
 include(CheckCXXCompilerFlag)
 
 ######################################
@@ -50,3 +54,18 @@ include_directories( ${pybind11_INCLUDE_DIRS} )
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(readKwallet)
+
+######################################
+# enable testing functionality       #
+######################################
+
+include(CTest)
+
+######################################
+# Include the tests subdirectory     #
+# to set up unit tests               #
+######################################
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
