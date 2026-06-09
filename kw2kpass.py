@@ -76,13 +76,13 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
 
 def main():
     """Main loop of extracting from Kwallet and adding to KeePassXC database."""
-    Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kpasswd = get_options_and_defaults()
-    database = open_database(Kinfile, Koutfile, Kpasswd)
+    Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kinpasswd, Koutpasswd = get_options_and_defaults()
+    database = open_database(Kinfile, Koutfile, Kinpasswd)
     wallet = open_wallet(Wname)
     for Wfolder in WsafeMap:
         group = WsafeMap[Wfolder]
         copy_wallet_folder(wallet, Wfolder, Wfilter, database, group)
-    close_database(database, Koutfile, Kpasswd)
+    close_database(database, Koutfile, Koutpasswd)
 
 
 if __name__ == "__main__":

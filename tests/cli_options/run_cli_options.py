@@ -40,13 +40,18 @@ class TestGetOptionsDefaults(unittest.TestCase):
 
     def test_default_outfile(self):
         """Output file defaults to 'keepass.kdbx' when --outfile is not specified."""
-        _, _, _, _, outfile, _ = get_options_and_defaults([])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults([])
         self.assertEqual(outfile, "keepass.kdbx")
 
-    def test_default_passwd(self):
-        """Password defaults to None when --passwd is not specified."""
-        *_, passwd = get_options_and_defaults([])
-        self.assertIsNone(passwd)
+    def test_default_outpasswd(self):
+        """Output password defaults to None when --outpasswd is not specified."""
+        *_, outpasswd = get_options_and_defaults([])
+        self.assertIsNone(outpasswd)
+
+    def test_default_inpasswd(self):
+        """Input password defaults to None when neither --inpasswd nor --outpasswd is specified."""
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults([])
+        self.assertIsNone(inpasswd)
 
 
 class TestGetOptionsWallet(unittest.TestCase):
@@ -126,41 +131,63 @@ class TestGetOptionsOutfile(unittest.TestCase):
 
     def test_long_option(self):
         """--outfile FILE sets the output file path."""
-        _, _, _, _, outfile, _ = get_options_and_defaults(["--outfile", "out.kdbx"])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["--outfile", "out.kdbx"])
         self.assertEqual(outfile, "out.kdbx")
 
     def test_short_option(self):
         """-o FILE sets the output file path via the short form."""
-        _, _, _, _, outfile, _ = get_options_and_defaults(["-o", "result.kdbx"])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["-o", "result.kdbx"])
         self.assertEqual(outfile, "result.kdbx")
 
 
 class TestGetOptionsPasswd(unittest.TestCase):
-    """Tests for the --passwd / -p option."""
+    """Tests for the --outpasswd / -P and --inpasswd / -p options."""
 
-    def test_long_option(self):
-        """--passwd PASSWD sets the KeePass password."""
-        *_, passwd = get_options_and_defaults(["--passwd", "s3cret"])
-        self.assertEqual(passwd, "s3cret")
+    def test_outpasswd_long_option(self):
+        """--outpasswd PASSWD sets the KeePass output password."""
+        *_, outpasswd = get_options_and_defaults(["--outpasswd", "s3cret"])
+        self.assertEqual(outpasswd, "s3cret")
 
-    def test_short_option(self):
-        """-p PASSWD sets the KeePass password via the short form."""
-        *_, passwd = get_options_and_defaults(["-p", "hunter2"])
-        self.assertEqual(passwd, "hunter2")
+    def test_outpasswd_short_option(self):
+        """-P PASSWD sets the KeePass output password via the short form."""
+        *_, outpasswd = get_options_and_defaults(["-P", "hunter2"])
+        self.assertEqual(outpasswd, "hunter2")
+
+    def test_inpasswd_long_option(self):
+        """--inpasswd PASSWD sets the KeePass input password."""
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["--inpasswd", "r3adin"])
+        self.assertEqual(inpasswd, "r3adin")
+
+    def test_inpasswd_short_option(self):
+        """-p PASSWD sets the KeePass input password via the short form."""
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["-p", "inkey"])
+        self.assertEqual(inpasswd, "inkey")
+
+    def test_inpasswd_defaults_to_outpasswd(self):
+        """When --inpasswd is omitted, inpasswd defaults to the value of --outpasswd."""
+        _, _, _, _, _, inpasswd, outpasswd = get_options_and_defaults(["--outpasswd", "shared"])
+        self.assertEqual(inpasswd, "shared")
+        self.assertEqual(outpasswd, "shared")
+
+    def test_inpasswd_independent_of_outpasswd(self):
+        """When both are given, inpasswd and outpasswd hold their own values."""
+        _, _, _, _, _, inpasswd, outpasswd = get_options_and_defaults(["--inpasswd", "old", "--outpasswd", "new"])
+        self.assertEqual(inpasswd, "old")
+        self.assertEqual(outpasswd, "new")
 
 
 class TestGetOptionsVerbosity(unittest.TestCase):
     """Tests for --verbose / -V and --debug / -D options."""
 
     def test_verbose_does_not_raise(self):
-        """--verbose is accepted and the function returns a 6-tuple."""
+        """--verbose is accepted and the function returns a 7-tuple."""
         result = get_options_and_defaults(["--verbose"])
-        self.assertEqual(len(result), 6)
+        self.assertEqual(len(result), 7)
 
     def test_debug_does_not_raise(self):
-        """--debug is accepted and the function returns a 6-tuple."""
+        """--debug is accepted and the function returns a 7-tuple."""
         result = get_options_and_defaults(["--debug"])
-        self.assertEqual(len(result), 6)
+        self.assertEqual(len(result), 7)
 
     def test_verbose_and_debug_are_mutually_exclusive(self):
         """Combining --verbose and --debug causes the parser to exit with an error."""
@@ -171,11 +198,11 @@ class TestGetOptionsVerbosity(unittest.TestCase):
 class TestGetOptionsReturnType(unittest.TestCase):
     """Tests for the return type and types of each element."""
 
-    def test_returns_tuple_of_six(self):
-        """The function always returns a tuple with exactly 6 elements."""
+    def test_returns_tuple_of_seven(self):
+        """The function always returns a tuple with exactly 7 elements."""
         result = get_options_and_defaults([])
         self.assertIsInstance(result, tuple)
-        self.assertEqual(len(result), 6)
+        self.assertEqual(len(result), 7)
 
     def test_wallet_is_str(self):
         """The wallet element (index 0) is a str."""
@@ -194,7 +221,7 @@ class TestGetOptionsReturnType(unittest.TestCase):
 
     def test_outfile_is_str(self):
         """The outfile element (index 4) is a str."""
-        _, _, _, _, outfile, _ = get_options_and_defaults([])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults([])
         self.assertIsInstance(outfile, str)
 
 

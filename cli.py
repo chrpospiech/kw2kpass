@@ -64,13 +64,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output file path (default: keepass.kdbx).",
     )
     parser.add_argument(
-        "-p",
-        "--passwd",
-        dest="passwd",
+        "-P",
+        "--outpasswd",
+        dest="outpasswd",
         type=str,
         default=None,
         metavar="PASSWD",
-        help="KeePass password (default: None).",
+        help="KeePass output password (default: None).",
+    )
+    parser.add_argument(
+        "-p",
+        "--inpasswd",
+        dest="inpasswd",
+        type=str,
+        default=None,
+        metavar="PASSWD",
+        help="KeePass input password (default: same as --outpasswd).",
     )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument(
@@ -105,7 +114,8 @@ def get_options_and_defaults(argv=None):
         map: dict[str, str],
         infile: str | None,
         outfile: str,
-        passwd: str | None,
+        inpasswd: str | None,
+        outpasswd: str | None,
     ).
     """
     parser = _build_parser()
@@ -136,11 +146,13 @@ def get_options_and_defaults(argv=None):
         else:
             wsafe_map[parts[0]] = parts[1]
 
+    inpasswd = args.inpasswd if args.inpasswd is not None else args.outpasswd
     return (
         args.wallet,
         wfilter,
         wsafe_map,
         args.infile,
         args.outfile,
-        args.passwd,
+        inpasswd,
+        args.outpasswd,
     )
