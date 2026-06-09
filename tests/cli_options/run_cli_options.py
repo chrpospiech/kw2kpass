@@ -19,39 +19,39 @@ class TestGetOptionsDefaults(unittest.TestCase):
 
     def test_default_wallet(self):
         """Wallet name defaults to 'kdewallet' when no argument is given."""
-        wallet, *_ = get_options_and_defaults([])
+        wallet, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertEqual(wallet, "kdewallet")
 
     def test_default_filter(self):
         """Filter defaults to the compiled pattern '.*' (match everything)."""
-        _, flt, *_ = get_options_and_defaults([])
+        _, flt, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(flt, re.Pattern)
         self.assertEqual(flt.pattern, ".*")
 
     def test_default_map(self):
         """Folder-to-group map defaults to an empty dict when no --map is given."""
-        _, _, mp, *_ = get_options_and_defaults([])
+        _, _, mp, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertEqual(mp, {})
 
     def test_default_infile(self):
         """Input file defaults to None when --infile is not specified."""
-        _, _, _, infile, *_ = get_options_and_defaults([])
+        _, _, _, infile, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertIsNone(infile)
 
     def test_default_outfile(self):
         """Output file defaults to 'keepass.kdbx' when --outfile is not specified."""
-        _, _, _, _, outfile, _, _ = get_options_and_defaults([])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["-P", "pw"])
         self.assertEqual(outfile, "keepass.kdbx")
 
-    def test_default_outpasswd(self):
-        """Output password defaults to None when --outpasswd is not specified."""
-        *_, outpasswd = get_options_and_defaults([])
-        self.assertIsNone(outpasswd)
+    def test_missing_outpasswd_exits(self):
+        """Omitting --outpasswd causes the parser to exit with an error."""
+        with self.assertRaises(SystemExit):
+            get_options_and_defaults([])
 
     def test_default_inpasswd(self):
-        """Input password defaults to None when neither --inpasswd nor --outpasswd is specified."""
-        _, _, _, _, _, inpasswd, _ = get_options_and_defaults([])
-        self.assertIsNone(inpasswd)
+        """Input password defaults to outpasswd when --inpasswd is not specified."""
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["-P", "pw"])
+        self.assertEqual(inpasswd, "pw")
 
 
 class TestGetOptionsWallet(unittest.TestCase):
@@ -59,12 +59,12 @@ class TestGetOptionsWallet(unittest.TestCase):
 
     def test_long_option(self):
         """--wallet NAME sets the wallet name."""
-        wallet, *_ = get_options_and_defaults(["--wallet", "mywallet"])
+        wallet, *_ = get_options_and_defaults(["--wallet", "mywallet", "-P", "pw"])
         self.assertEqual(wallet, "mywallet")
 
     def test_short_option(self):
         """-w NAME sets the wallet name via the short form."""
-        wallet, *_ = get_options_and_defaults(["-w", "otherwallet"])
+        wallet, *_ = get_options_and_defaults(["-w", "otherwallet", "-P", "pw"])
         self.assertEqual(wallet, "otherwallet")
 
 
@@ -73,13 +73,13 @@ class TestGetOptionsFilter(unittest.TestCase):
 
     def test_long_option(self):
         """--filter REGEX compiles and stores the given regex pattern."""
-        _, flt, *_ = get_options_and_defaults(["--filter", r"^user@host"])
+        _, flt, *_ = get_options_and_defaults(["--filter", r"^user@host", "-P", "pw"])
         self.assertIsInstance(flt, re.Pattern)
         self.assertEqual(flt.pattern, r"^user@host")
 
     def test_short_option(self):
         """-F REGEX sets the filter via the short form."""
-        _, flt, *_ = get_options_and_defaults(["-F", r"admin"])
+        _, flt, *_ = get_options_and_defaults(["-F", r"admin", "-P", "pw"])
         self.assertEqual(flt.pattern, r"admin")
 
     def test_invalid_regex_exits(self):
@@ -93,22 +93,22 @@ class TestGetOptionsMap(unittest.TestCase):
 
     def test_single_folder_only(self):
         """A bare FOLDER name maps the folder to a group of the same name."""
-        _, _, mp, *_ = get_options_and_defaults(["--map", "Passwords"])
+        _, _, mp, *_ = get_options_and_defaults(["--map", "Passwords", "-P", "pw"])
         self.assertEqual(mp, {"Passwords": "Passwords"})
 
     def test_folder_colon_group(self):
         """FOLDER:GROUP syntax maps the folder to the specified group name."""
-        _, _, mp, *_ = get_options_and_defaults(["--map", "Passwords:MyGroup"])
+        _, _, mp, *_ = get_options_and_defaults(["--map", "Passwords:MyGroup", "-P", "pw"])
         self.assertEqual(mp, {"Passwords": "MyGroup"})
 
     def test_multiple_maps(self):
         """Multiple -m flags accumulate into a single folder-to-group dict."""
-        _, _, mp, *_ = get_options_and_defaults(["-m", "FolderA:GroupA", "-m", "FolderB"])
+        _, _, mp, *_ = get_options_and_defaults(["-m", "FolderA:GroupA", "-m", "FolderB", "-P", "pw"])
         self.assertEqual(mp, {"FolderA": "GroupA", "FolderB": "FolderB"})
 
     def test_no_map(self):
         """When no --map flag is given the map is an empty dict."""
-        _, _, mp, *_ = get_options_and_defaults([])
+        _, _, mp, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertEqual(mp, {})
 
 
@@ -117,12 +117,12 @@ class TestGetOptionsInfile(unittest.TestCase):
 
     def test_long_option(self):
         """--infile FILE sets the input file path."""
-        _, _, _, infile, *_ = get_options_and_defaults(["--infile", "data.xml"])
+        _, _, _, infile, *_ = get_options_and_defaults(["--infile", "data.xml", "-P", "pw"])
         self.assertEqual(infile, "data.xml")
 
     def test_short_option(self):
         """-i FILE sets the input file path via the short form."""
-        _, _, _, infile, *_ = get_options_and_defaults(["-i", "wallet.xml"])
+        _, _, _, infile, *_ = get_options_and_defaults(["-i", "wallet.xml", "-P", "pw"])
         self.assertEqual(infile, "wallet.xml")
 
 
@@ -131,12 +131,12 @@ class TestGetOptionsOutfile(unittest.TestCase):
 
     def test_long_option(self):
         """--outfile FILE sets the output file path."""
-        _, _, _, _, outfile, _, _ = get_options_and_defaults(["--outfile", "out.kdbx"])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["--outfile", "out.kdbx", "-P", "pw"])
         self.assertEqual(outfile, "out.kdbx")
 
     def test_short_option(self):
         """-o FILE sets the output file path via the short form."""
-        _, _, _, _, outfile, _, _ = get_options_and_defaults(["-o", "result.kdbx"])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["-o", "result.kdbx", "-P", "pw"])
         self.assertEqual(outfile, "result.kdbx")
 
 
@@ -155,12 +155,12 @@ class TestGetOptionsPasswd(unittest.TestCase):
 
     def test_inpasswd_long_option(self):
         """--inpasswd PASSWD sets the KeePass input password."""
-        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["--inpasswd", "r3adin"])
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["--inpasswd", "r3adin", "--outpasswd", "out"])
         self.assertEqual(inpasswd, "r3adin")
 
     def test_inpasswd_short_option(self):
         """-p PASSWD sets the KeePass input password via the short form."""
-        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["-p", "inkey"])
+        _, _, _, _, _, inpasswd, _ = get_options_and_defaults(["-p", "inkey", "-P", "out"])
         self.assertEqual(inpasswd, "inkey")
 
     def test_inpasswd_defaults_to_outpasswd(self):
@@ -181,12 +181,12 @@ class TestGetOptionsVerbosity(unittest.TestCase):
 
     def test_verbose_does_not_raise(self):
         """--verbose is accepted and the function returns a 7-tuple."""
-        result = get_options_and_defaults(["--verbose"])
+        result = get_options_and_defaults(["--verbose", "-P", "pw"])
         self.assertEqual(len(result), 7)
 
     def test_debug_does_not_raise(self):
         """--debug is accepted and the function returns a 7-tuple."""
-        result = get_options_and_defaults(["--debug"])
+        result = get_options_and_defaults(["--debug", "-P", "pw"])
         self.assertEqual(len(result), 7)
 
     def test_verbose_and_debug_are_mutually_exclusive(self):
@@ -200,28 +200,28 @@ class TestGetOptionsReturnType(unittest.TestCase):
 
     def test_returns_tuple_of_seven(self):
         """The function always returns a tuple with exactly 7 elements."""
-        result = get_options_and_defaults([])
+        result = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(result, tuple)
         self.assertEqual(len(result), 7)
 
     def test_wallet_is_str(self):
         """The wallet element (index 0) is a str."""
-        wallet, *_ = get_options_and_defaults([])
+        wallet, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(wallet, str)
 
     def test_filter_is_pattern(self):
         """The filter element (index 1) is a compiled re.Pattern."""
-        _, flt, *_ = get_options_and_defaults([])
+        _, flt, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(flt, re.Pattern)
 
     def test_map_is_dict(self):
         """The map element (index 2) is a dict."""
-        _, _, mp, *_ = get_options_and_defaults([])
+        _, _, mp, *_ = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(mp, dict)
 
     def test_outfile_is_str(self):
         """The outfile element (index 4) is a str."""
-        _, _, _, _, outfile, _, _ = get_options_and_defaults([])
+        _, _, _, _, outfile, _, _ = get_options_and_defaults(["-P", "pw"])
         self.assertIsInstance(outfile, str)
 
 

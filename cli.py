@@ -146,6 +146,9 @@ def get_options_and_defaults(argv=None):
         else:
             wsafe_map[parts[0]] = parts[1]
 
+    if args.outpasswd is None:
+        parser.error("a KeePass output password is required (-P/--outpasswd)")
+
     inpasswd = args.inpasswd if args.inpasswd is not None else args.outpasswd
     return (
         args.wallet,
