@@ -77,12 +77,7 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
 def main():
     """Main loop of extracting from Kwallet and adding to KeePassXC database."""
     Wname, Wfilter, WsafeMap, Kinfile, Koutfile, Kinpasswd, Koutpasswd = get_options_and_defaults()
-    # Determine database password: use input password if given, else output password.
-    # Please note that the output password is required, and can never be None.
-    # This allows to use the same password for input and output if only one is given,
-    # but also to use different passwords if both are given.
-    db_passwd = Kinpasswd if Kinfile is not None else Koutpasswd
-    database = open_database(Kinfile, Koutfile, db_passwd)
+    database = open_database(Kinfile, Koutfile, Kinpasswd)
     wallet = open_wallet(Wname)
     for Wfolder in WsafeMap:
         group = WsafeMap[Wfolder]
