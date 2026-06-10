@@ -131,6 +131,13 @@ def get_options_and_defaults(argv=None):
     logger.setLevel(getattr(logging, loglevel))
     logger.info(f"Logging level changed to {loglevel}")
 
+    if args.outpasswd is None:
+        parser.error("a KeePass output password is required (-P/--outpasswd)")
+
+    if args.inpasswd is None and args.outpasswd is not None:
+        logger.info("Input password not specified, using output password")
+        args.inpasswd = args.outpasswd
+
     # Compile filter regex
     try:
         wfilter = re.compile(args.filter)
