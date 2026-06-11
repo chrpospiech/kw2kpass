@@ -207,11 +207,15 @@ void TestReadWallet::initTestCase() {
     // "Export Wallet" and contains kw2kpass_test.kwl and kw2kpass_test.salt.
     // Extract both files directly into the kwalletd wallet directory so the
     // daemon can find the wallet by name.
-    const QString archive = testDataArchive();
-    if (QFile::exists(archive)) {
-        QDir().mkpath(walletDir());
 
-        QProcess tar;
+    // Safety: never overwrite or delete a real user wallet that happens to have
+    // the same name as this test fixture.
+    if (QFile::exists(walletDir() + QLatin1String("/kw2kpass_test.kwl")) ||
+        QFile::exists(walletDir() + QLatin1String("/kw2kpass_test.salt"))) {
+        QSKIP("A wallet named kw2kpass_test already exists in the kwalletd directory; refusing to overwrite/delete it");
+    }
+
+    const QString archive = testDataArchive();
         tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
         if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
             QSKIP("Failed to extract the test wallet archive into the kwalletd directory");
