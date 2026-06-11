@@ -83,8 +83,10 @@ uv run kw2kpass.py [OPTIONS]
    Existing input KDBX file. If omitted, a new database is created.
 - `-o, --outfile FILE`
    Output KDBX path (default: `keepass.kdbx`).
-- `-p, --passwd PASSWD`
-   KeePass password.
+- `-P, --outpasswd PASSWD`
+   KeePass output password (required).
+- `-p, --inpasswd PASSWD`
+   KeePass input password (default: same as `--outpasswd`).
 - `-V, --verbose`
    Enable INFO logging.
 - `-D, --debug`
@@ -98,7 +100,7 @@ Create a new database from one folder:
 python kw2kpass.py \
    -m Chromium\ Form\ Data:Browser \
    -o keepass.kdbx \
-   -p 'change-me'
+   -P 'change-me'
 ```
 
 Import multiple folders into an existing database and filter hosts:
@@ -107,7 +109,7 @@ Import multiple folders into an existing database and filter hosts:
 python kw2kpass.py \
    -i existing.kdbx \
    -o updated.kdbx \
-   -p 'change-me' \
+   -P 'change-me' \
    -m Chromium\ Form\ Data:Browser \
    -m Network\ Management:WiFi \
    -F 'github|gitlab|example\\.com'
@@ -118,6 +120,21 @@ python kw2kpass.py \
 - If a wallet folder does not exist, execution exits with status 2.
 - Entries with password `n/a` are skipped.
 - Existing KeePass entries are matched by `(group, title)` and updated in place.
+
+## Tests
+
+After building (see [Build](#build)), run the unit tests with CTest from the
+build directory or specify the build directory with option `--test-dir`:
+
+```sh
+ctest --test-dir build
+```
+
+To see test output on failure:
+
+```sh
+ctest --test-dir build --output-on-failure
+```
 
 ## Developer notes
 
