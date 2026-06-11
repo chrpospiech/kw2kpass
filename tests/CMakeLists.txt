@@ -8,4 +8,4 @@
 ######################################
 
 add_subdirectory(cli_options)
-# add_subdirectory(whatever)
+add_subdirectory(wallethandle)
