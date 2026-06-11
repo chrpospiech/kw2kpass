@@ -163,29 +163,50 @@ class TestReadWallet : public QObject {
 // ── Setup helpers ─────────────────────────────────────────────────────────────
 
 void TestReadWallet::populateFromScratch() {
+    auto skipOnDbusError = [](const QDBusMessage &reply, const char *method) {
+        if (reply.type() == QDBusMessage::ErrorMessage) {
+            const QByteArray msg =
+                QStringLiteral("kwalletd5 %1 failed while populating scratch fixture: %2")
+                    .arg(QString::fromLatin1(method), reply.errorMessage())
+                    .toUtf8();
+            QSKIP(msg.constData());
+        }
+    };
+
     // Folder: Form Data – empty.
-    m_iface->call("createFolder", m_handle, QString(FOLDER_FORM_DATA), QString(WALLET_APPID));
+    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_FORM_DATA), QString(WALLET_APPID)),
+                    "createFolder");
 
     // Folder: Passwords – two Password-type entries and one Map-type entry.
-    m_iface->call("createFolder", m_handle, QString(FOLDER_PASSWORDS), QString(WALLET_APPID));
-    m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example1"), QString(""),
-                  QString(WALLET_APPID));
-    m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example2"), QString(""),
-                  QString(WALLET_APPID));
+    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_PASSWORDS), QString(WALLET_APPID)),
+                    "createFolder");
+    skipOnDbusError(
+        m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example1"), QString(""),
+                      QString(WALLET_APPID)),
+        "writePassword");
+    skipOnDbusError(
+        m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example2"), QString(""),
+                      QString(WALLET_APPID)),
+        "writePassword");
 
     QMap<QString, QString> testMap;
     testMap[QStringLiteral("hostname")] = QStringLiteral("https://www.bahn.de/");
     testMap[QStringLiteral("password")] = QStringLiteral("trivial_and_not_valid");
     testMap[QStringLiteral("username")] = QStringLiteral("not@existing");
-    m_iface->call("writeMap", m_handle, QString(FOLDER_PASSWORDS), QString("test_map"), encodeMap(testMap),
-                  QString(WALLET_APPID));
+    skipOnDbusError(
+        m_iface->call("writeMap", m_handle, QString(FOLDER_PASSWORDS), QString("test_map"), encodeMap(testMap),
+                      QString(WALLET_APPID)),
+        "writeMap");
 
     // Folder: test_folder – one Password-type entry.
-    m_iface->call("createFolder", m_handle, QString(FOLDER_TEST), QString(WALLET_APPID));
-    m_iface->call("writePassword", m_handle, QString(FOLDER_TEST), QString("example3"), QString(""),
-                  QString(WALLET_APPID));
+    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_TEST), QString(WALLET_APPID)),
+                    "createFolder");
+    skipOnDbusError(
+        m_iface->call("writePassword", m_handle, QString(FOLDER_TEST), QString("example3"), QString(""),
+                      QString(WALLET_APPID)),
+        "writePassword");
 
-    m_iface->call("sync", m_handle, QString(WALLET_APPID));
+    skipOnDbusError(m_iface->call("sync", m_handle, QString(WALLET_APPID)), "sync");
 }
 
 // ── initTestCase ─────────────────────────────────────────────────────────────
