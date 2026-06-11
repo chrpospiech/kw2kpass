@@ -124,7 +124,7 @@ python kw2kpass.py \
 ## Tests
 
 After building (see [Build](#build)), run the unit tests with CTest from the
-build directory:
+build directory or specify the build directory with option `--test-dir`:
 
 ```sh
 ctest --test-dir build
