@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Expected contents of the kw2kpass_test KWallet wallet.
+  Reference for tests/wallethandle/test_read_wallet.cpp.
+
+  The wallet file tests/test_data/kw2kpass_test is a tar archive produced by
+  kwalletmanager5 "Export Wallet".  It contains:
+    kw2kpass_test.kwl  - Blowfish-encrypted KWallet 5 file
+    kw2kpass_test.salt - PBKDF2 salt used by kwalletd
+  Wallet password: "Only4Test"
+
+  If the archive is absent the test creates the wallet from scratch at
+  runtime via kwalletd's pamOpen DBus method and populates it with exactly
+  the entries listed below.
+-->
+<wallet name="kw2kpass_test" cipher="Blowfish" password="Only4Test">
+
+  <!-- Empty folder - tests WalletHandle::hasFolder() -->
+  <folder name="Form Data"/>
+
+  <folder name="Passwords">
+    <!-- Password-type entries: only the password field is stored;
+         username and hostname are therefore empty strings when read
+         via WalletHandle. -->
+    <password name="example1"></password>
+    <password name="example2"></password>
+
+    <!-- Map-type entry: all three fields are stored as a
+         QMap<QString,QString> serialised with QDataStream. -->
+    <map name="test_map">
+      <mapentry name="hostname">https://www.bahn.de/</mapentry>
+      <mapentry name="password">trivial_and_not_valid</mapentry>
+      <mapentry name="username">not@existing</mapentry>
+    </map>
+  </folder>
+
+  <folder name="test_folder">
+    <password name="example3"></password>
+  </folder>
+
+</wallet>
