@@ -83,8 +83,10 @@ uv run kw2kpass.py [OPTIONS]
    Existing input KDBX file. If omitted, a new database is created.
 - `-o, --outfile FILE`
    Output KDBX path (default: `keepass.kdbx`).
-- `-p, --passwd PASSWD`
-   KeePass password.
+- `-P, --outpasswd PASSWD`
+   KeePass output password.
+- `-p, --inpasswd PASSWD`
+   KeePass input password (default: same as `--outpasswd`).
 - `-V, --verbose`
    Enable INFO logging.
 - `-D, --debug`
@@ -98,7 +100,7 @@ Create a new database from one folder:
 python kw2kpass.py \
    -m Chromium\ Form\ Data:Browser \
    -o keepass.kdbx \
-   -p 'change-me'
+   -P 'change-me'
 ```
 
 Import multiple folders into an existing database and filter hosts:
@@ -107,7 +109,7 @@ Import multiple folders into an existing database and filter hosts:
 python kw2kpass.py \
    -i existing.kdbx \
    -o updated.kdbx \
-   -p 'change-me' \
+   -P 'change-me' \
    -m Chromium\ Form\ Data:Browser \
    -m Network\ Management:WiFi \
    -F 'github|gitlab|example\\.com'
