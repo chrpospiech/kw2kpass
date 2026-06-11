@@ -121,7 +121,7 @@ class TestReadWallet : public QObject {
     }
 
     // Create folders and entries matching tests/test_data/kw2kpass_test.xml.
-    void populateFromScratch();
+    void setupTestFixture();
 
     // Remove the .kwl and .salt files placed in the wallet directory.
     void removeImportedFiles() {
@@ -162,13 +162,12 @@ class TestReadWallet : public QObject {
 
 // ── Setup helpers ─────────────────────────────────────────────────────────────
 
-void TestReadWallet::populateFromScratch() {
+void TestReadWallet::setupTestFixture() {
     auto skipOnDbusError = [](const QDBusMessage &reply, const char *method) {
         if (reply.type() == QDBusMessage::ErrorMessage) {
-            const QByteArray msg =
-                QStringLiteral("kwalletd5 %1 failed while populating scratch fixture: %2")
-                    .arg(QString::fromLatin1(method), reply.errorMessage())
-                    .toUtf8();
+            const QByteArray msg = QStringLiteral("kwalletd5 %1 failed while populating scratch fixture: %2")
+                                       .arg(QString::fromLatin1(method), reply.errorMessage())
+                                       .toUtf8();
             QSKIP(msg.constData());
         }
     };
@@ -180,31 +179,27 @@ void TestReadWallet::populateFromScratch() {
     // Folder: Passwords – two Password-type entries and one Map-type entry.
     skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_PASSWORDS), QString(WALLET_APPID)),
                     "createFolder");
-    skipOnDbusError(
-        m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example1"), QString(""),
-                      QString(WALLET_APPID)),
-        "writePassword");
-    skipOnDbusError(
-        m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example2"), QString(""),
-                      QString(WALLET_APPID)),
-        "writePassword");
+    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example1"),
+                                  QString(""), QString(WALLET_APPID)),
+                    "writePassword");
+    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example2"),
+                                  QString(""), QString(WALLET_APPID)),
+                    "writePassword");
 
     QMap<QString, QString> testMap;
     testMap[QStringLiteral("hostname")] = QStringLiteral("https://www.bahn.de/");
     testMap[QStringLiteral("password")] = QStringLiteral("trivial_and_not_valid");
     testMap[QStringLiteral("username")] = QStringLiteral("not@existing");
-    skipOnDbusError(
-        m_iface->call("writeMap", m_handle, QString(FOLDER_PASSWORDS), QString("test_map"), encodeMap(testMap),
-                      QString(WALLET_APPID)),
-        "writeMap");
+    skipOnDbusError(m_iface->call("writeMap", m_handle, QString(FOLDER_PASSWORDS), QString("test_map"),
+                                  encodeMap(testMap), QString(WALLET_APPID)),
+                    "writeMap");
 
     // Folder: test_folder – one Password-type entry.
     skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_TEST), QString(WALLET_APPID)),
                     "createFolder");
-    skipOnDbusError(
-        m_iface->call("writePassword", m_handle, QString(FOLDER_TEST), QString("example3"), QString(""),
-                      QString(WALLET_APPID)),
-        "writePassword");
+    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_TEST), QString("example3"), QString(""),
+                                  QString(WALLET_APPID)),
+                    "writePassword");
 
     skipOnDbusError(m_iface->call("sync", m_handle, QString(WALLET_APPID)), "sync");
 }
@@ -237,6 +232,9 @@ void TestReadWallet::initTestCase() {
     }
 
     const QString archive = testDataArchive();
+    if (QFile::exists(archive)) {
+        QDir().mkpath(walletDir());
+        QProcess tar;
         tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
         if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
             QSKIP("Failed to extract the test wallet archive into the kwalletd directory");
@@ -281,7 +279,7 @@ void TestReadWallet::initTestCase() {
     // ── Step 5: populate test data (scratch path only) ───────────────────────
     // When importing a pre-built archive the entries are already present.
     if (!m_imported) {
-        populateFromScratch();
+        setupTestFixture();
     }
 }
 
