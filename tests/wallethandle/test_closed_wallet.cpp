@@ -1,5 +1,5 @@
 /*
- * test_wallethandle.cpp
+ * test_closed_wallet.cpp
  *
  * Unit tests for WalletHandle and WalletIterator.
  *
