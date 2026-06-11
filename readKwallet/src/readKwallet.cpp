@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
             break;
         default:
             std::cout << "Unknown option." << std::endl;
-            abort();
+            std::abort();
         }
     }
 
