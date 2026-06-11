@@ -115,7 +115,6 @@ std::string WalletHandle::hostname(std::string entry) {
     switch (wallet->entryType(key)) {
     case (KWallet::Wallet::EntryType::Password): {
         return "";
-        break;
     }
     case (KWallet::Wallet::EntryType::Map): {
         QMap<QString, QString> wmap;
@@ -127,8 +126,7 @@ std::string WalletHandle::hostname(std::string entry) {
             exit(1);
         }
         QString hname = wmap.value(QString("hostname"), QString(""));
-        return (hname.toStdString());
-        break;
+        return hname.toStdString();
     }
     default:
         std::cerr << "case not implemented yet." << std::endl;
