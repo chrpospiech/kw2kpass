@@ -151,3 +151,12 @@ Alternatively, `pre-commit` can be installed like this.
 ```sh
 uv run pre-commit install
 ```
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0 or later**
+(GPL-3.0-or-later). See the [LICENSE](LICENSE) file for the full license text.
+
+The C++ sources in `readKwallet/` contain code originally authored by
+Dr. Christoph Pospiech at Lenovo Deutschland GmbH (2016–2022) and carry their
+original copyright notice alongside the GPL-3.0-or-later header.
