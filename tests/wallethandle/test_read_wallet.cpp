@@ -272,8 +272,7 @@ void TestReadWallet::cleanupTestCase() {
         m_iface->call("deleteWallet", QString(WALLET_NAME));
         m_handle = -1;
         // Remove the salt file that deleteWallet does not clean up.
-        if (m_imported)
-            QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.salt"));
+        QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.salt"));
     }
 }
 
