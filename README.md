@@ -84,7 +84,7 @@ uv run kw2kpass.py [OPTIONS]
 - `-o, --outfile FILE`
    Output KDBX path (default: `keepass.kdbx`).
 - `-P, --outpasswd PASSWD`
-   KeePass output password.
+   KeePass output password (required).
 - `-p, --inpasswd PASSWD`
    KeePass input password (default: same as `--outpasswd`).
 - `-V, --verbose`
