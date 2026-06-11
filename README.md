@@ -121,6 +121,21 @@ python kw2kpass.py \
 - Entries with password `n/a` are skipped.
 - Existing KeePass entries are matched by `(group, title)` and updated in place.
 
+## Tests
+
+After building (see [Build](#build)), run the unit tests with CTest from the
+build directory:
+
+```sh
+ctest --test-dir build
+```
+
+To see test output on failure:
+
+```sh
+ctest --test-dir build --output-on-failure
+```
+
 ## Developer notes
 
 Run linting/format checks with Ruff as configured in `pyproject.toml`.
