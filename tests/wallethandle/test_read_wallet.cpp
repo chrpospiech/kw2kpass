@@ -99,10 +99,17 @@ class TestReadWallet : public QObject {
     QDBusInterface *m_iface = nullptr;
     bool m_imported = false; // true when .kwl/.salt were extracted
 
-    // SHA-512 of the wallet password.
-    // pam_kwallet5 hashes the login password with SHA-512 and passes the
-    // result to kwalletd's pamOpen method as the key material.
-    static QByteArray passwordHash() { return QCryptographicHash::hash(WALLET_PASSWORD, QCryptographicHash::Sha512); }
+    // Key material for pamOpen.
+    // kwalletd's openPreHashed() only accepts 20, 40, or 56 bytes (the latter
+    // being PBKDF2_SHA512_KEYSIZE).  A raw SHA-512 digest is 64 bytes and is
+    // therefore rejected with error -42.  We truncate to 56 bytes so the size
+    // check passes and the value is used directly as the Blowfish key.
+    // (pam_kwallet5 derives its 56-byte key via PBKDF2-HMAC-SHA512(password,
+    // salt-file, 50000 iters) — here we skip the PBKDF2 step and use the
+    // first 56 bytes of the raw SHA-512 digest as a deterministic test key.)
+    static QByteArray passwordHash() {
+        return QCryptographicHash::hash(WALLET_PASSWORD, QCryptographicHash::Sha512).left(56);
+    }
 
     // Directory where kwalletd stores .kwl files on this system.
     static QString walletDir() {
