@@ -174,6 +174,7 @@ void TestReadWallet::initTestCase() {
     QProcess tar;
     tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
     if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
+        removeImportedFiles();
         fprintf(stdout, "SKIP   : Failed to extract the test wallet archive into the kwalletd directory\n");
         std::exit(222);
     }
