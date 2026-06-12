@@ -80,8 +80,8 @@ target_link_libraries(test_read_wallet
 
 add_test(NAME read_wallet COMMAND test_read_wallet)
 
-# This test needs the live kwalletd5 daemon to run.
-# It returns 222 when the daemon is not available, causing CTest mark this test as skipped.
+# This test needs the live kwalletd5 daemon and the test wallet archive to run.
+# It returns 222 when prerequisites are not met, causing CTest to mark this test as skipped.
 set_property(
     TEST read_wallet
     PROPERTY SKIP_RETURN_CODE 222
