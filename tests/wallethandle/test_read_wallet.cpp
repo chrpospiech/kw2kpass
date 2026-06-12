@@ -16,13 +16,14 @@
  *   method (first 56 bytes of SHA-512("Only4Test") as the key material)
  *   without any GUI dialog.
  *
- *   QSKIP is used throughout initTestCase() so all test methods are
- *   reported as "Skipped" – not "Failed" – when:
+ *   initTestCase() prints a "SKIP   :" message and exits with code 222
+ *   so CTest reports the integration test as "Skipped" when:
  *     - kwalletd5 is not registered on the session bus,
+ *     - the DBus interface to kwalletd5 is not valid,
  *     - the test wallet archive is not found in the source tree,
  *     - tar extraction of the wallet archive fails,
  *     - pamOpen does not open the wallet within 3 s, or
- *     - any other setup step cannot complete.
+ *     - a kwalletd handle cannot be obtained.
  *
  * Cleanup (cleanupTestCase):
  *   deleteWallet removes the wallet from the daemon and deletes the
