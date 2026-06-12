@@ -5,31 +5,23 @@
  *
  * Wallet setup (initTestCase):
  *
- *   IMPORT PATH  – preferred, provides a deterministic fixture
- *     tests/test_data/kw2kpass_test is a tar archive produced by
- *     kwalletmanager5's "Export Wallet" function.  It contains:
- *       kw2kpass_test.kwl   – Blowfish-encrypted wallet file
- *       kw2kpass_test.salt  – PBKDF2 salt used by kwalletd
- *     The wallet's password is "Only4Test".
+ *   IMPORT PATH  – tests/test_data/kw2kpass_test is a tar archive
+ *     containing kw2kpass_test.kwl (Blowfish-encrypted wallet) and a
+ *     kw2kpass_test.salt placeholder.  The wallet was sealed with the
+ *     first 56 bytes of SHA-512("Only4Test") as the Blowfish key.
  *     initTestCase() extracts both files into the kwalletd wallet
  *     directory so the daemon can open the wallet by name.
  *
- *   SCRATCH PATH  – automatic fallback when the tar archive is absent
- *     The wallet "kw2kpass_test" is created from scratch via kwalletd's
- *     pamOpen DBus method and populated with the entries documented in
- *     tests/test_data/kw2kpass_test.xml.
- *
- *   Either way the wallet is opened non-interactively via kwalletd5's
- *   pamOpen DBus method (SHA-512 of "Only4Test" as the key material,
- *   matching what pam_kwallet5 sends to the daemon) without any GUI
- *   dialog.
+ *   The wallet is opened non-interactively via kwalletd5's pamOpen DBus
+ *   method (first 56 bytes of SHA-512("Only4Test") as the key material)
+ *   without any GUI dialog.
  *
  *   QSKIP is used throughout initTestCase() so all test methods are
  *   reported as "Skipped" – not "Failed" – when:
  *     - kwalletd5 is not registered on the session bus,
+ *     - the test wallet archive is not found in the source tree,
  *     - tar extraction of the wallet archive fails,
- *     - pamOpen does not open the wallet within 3 s (daemon policy
- *       restriction or mismatched password on the imported file), or
+ *     - pamOpen does not open the wallet within 3 s, or
  *     - any other setup step cannot complete.
  *
  * Cleanup (cleanupTestCase):
@@ -68,10 +60,8 @@
 #include <QDBusConnectionInterface>
 #include <QDBusInterface>
 #include <QDBusReply>
-#include <QDataStream>
 #include <QDir>
 #include <QFile>
-#include <QMap>
 #include <QProcess>
 #include <QStandardPaths>
 #include <QTest>
@@ -97,7 +87,6 @@ class TestReadWallet : public QObject {
   private:
     int m_handle = -1;
     QDBusInterface *m_iface = nullptr;
-    bool m_imported = false; // true when .kwl/.salt were extracted
 
     // Key material for pamOpen.
     // kwalletd's openPreHashed() only accepts 20, 40, or 56 bytes (the latter
@@ -119,18 +108,6 @@ class TestReadWallet : public QObject {
     // Path to the test-data tar archive in the source tree.
     // KWALLET_TEST_DATA_DIR is set by CMake to tests/test_data.
     static QString testDataArchive() { return QLatin1String(KWALLET_TEST_DATA_DIR) + QLatin1String("/kw2kpass_test"); }
-
-    // Encode a QMap<QString,QString> as the QDataStream byte array that
-    // kwalletd's writeMap DBus method expects.
-    static QByteArray encodeMap(const QMap<QString, QString> &m) {
-        QByteArray buf;
-        QDataStream ds(&buf, QIODevice::WriteOnly);
-        ds << m;
-        return buf;
-    }
-
-    // Create folders and entries matching tests/test_data/kw2kpass_test.xml.
-    void setupTestFixture();
 
     // Remove the .kwl and .salt files placed in the wallet directory.
     void removeImportedFiles() {
@@ -169,51 +146,6 @@ class TestReadWallet : public QObject {
     void iteratorTestFolder();
 };
 
-// ── Setup helpers ─────────────────────────────────────────────────────────────
-
-void TestReadWallet::setupTestFixture() {
-    auto skipOnDbusError = [](const QDBusMessage &reply, const char *method) {
-        if (reply.type() == QDBusMessage::ErrorMessage) {
-            const QByteArray msg = QStringLiteral("kwalletd5 %1 failed while populating scratch fixture: %2")
-                                       .arg(QString::fromLatin1(method), reply.errorMessage())
-                                       .toUtf8();
-            fprintf(stdout, "SKIP   : %s\n", msg.constData());
-            std::exit(222);
-        }
-    };
-
-    // Folder: Form Data – empty.
-    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_FORM_DATA), QString(WALLET_APPID)),
-                    "createFolder");
-
-    // Folder: Passwords – two Password-type entries and one Map-type entry.
-    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_PASSWORDS), QString(WALLET_APPID)),
-                    "createFolder");
-    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example1"),
-                                  QString(""), QString(WALLET_APPID)),
-                    "writePassword");
-    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_PASSWORDS), QString("example2"),
-                                  QString(""), QString(WALLET_APPID)),
-                    "writePassword");
-
-    QMap<QString, QString> testMap;
-    testMap[QStringLiteral("hostname")] = QStringLiteral("https://www.bahn.de/");
-    testMap[QStringLiteral("password")] = QStringLiteral("trivial_and_not_valid");
-    testMap[QStringLiteral("username")] = QStringLiteral("not@existing");
-    skipOnDbusError(m_iface->call("writeMap", m_handle, QString(FOLDER_PASSWORDS), QString("test_map"),
-                                  encodeMap(testMap), QString(WALLET_APPID)),
-                    "writeMap");
-
-    // Folder: test_folder – one Password-type entry.
-    skipOnDbusError(m_iface->call("createFolder", m_handle, QString(FOLDER_TEST), QString(WALLET_APPID)),
-                    "createFolder");
-    skipOnDbusError(m_iface->call("writePassword", m_handle, QString(FOLDER_TEST), QString("example3"), QString(""),
-                                  QString(WALLET_APPID)),
-                    "writePassword");
-
-    skipOnDbusError(m_iface->call("sync", m_handle, QString(WALLET_APPID)), "sync");
-}
-
 // ── initTestCase ─────────────────────────────────────────────────────────────
 
 void TestReadWallet::initTestCase() {
@@ -230,21 +162,20 @@ void TestReadWallet::initTestCase() {
         std::exit(222);
     }
 
-    // ── Step 2: import wallet archive if present ─────────────────────────────
-    // The archive tests/test_data/kw2kpass_test is produced by kwalletmanager5's
-    // "Export Wallet" and contains kw2kpass_test.kwl and kw2kpass_test.salt.
-    // Extract both files directly into the kwalletd wallet directory so the
-    // daemon can find the wallet by name.
+    // ── Step 2: import wallet archive ────────────────────────────────────────
+    // Extract kw2kpass_test.kwl and kw2kpass_test.salt from the source-tree
+    // archive into the kwalletd directory so the daemon can find the wallet.
     const QString archive = testDataArchive();
-    if (QFile::exists(archive)) {
-        QDir().mkpath(walletDir());
-        QProcess tar;
-        tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
-        if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
-            fprintf(stdout, "SKIP   : Failed to extract the test wallet archive into the kwalletd directory\n");
-            std::exit(222);
-        }
-        m_imported = true;
+    if (!QFile::exists(archive)) {
+        fprintf(stdout, "SKIP   : test wallet archive not found: %s\n", archive.toUtf8().constData());
+        std::exit(222);
+    }
+    QDir().mkpath(walletDir());
+    QProcess tar;
+    tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
+    if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
+        fprintf(stdout, "SKIP   : Failed to extract the test wallet archive into the kwalletd directory\n");
+        std::exit(222);
     }
 
     // ── Step 3: open the wallet non-interactively via pamOpen ────────────────
@@ -264,8 +195,7 @@ void TestReadWallet::initTestCase() {
     }
 
     if (!opened) {
-        if (m_imported)
-            removeImportedFiles();
+        removeImportedFiles();
         fprintf(stdout, "SKIP   : pamOpen did not open the test wallet within 3 s "
                         "(daemon policy restriction or wrong password on the imported file)\n");
         std::exit(222);
@@ -276,18 +206,11 @@ void TestReadWallet::initTestCase() {
     // without showing any dialog.
     QDBusReply<int> openReply = m_iface->call("open", QString(WALLET_NAME), qlonglong(0), QString(WALLET_APPID));
     if (!openReply.isValid() || openReply.value() < 0) {
-        if (m_imported)
-            removeImportedFiles();
+        removeImportedFiles();
         fprintf(stdout, "SKIP   : Could not obtain a kwalletd handle for the test wallet\n");
         std::exit(222);
     }
     m_handle = openReply.value();
-
-    // ── Step 5: populate test data (scratch path only) ───────────────────────
-    // When importing a pre-built archive the entries are already present.
-    if (!m_imported) {
-        setupTestFixture();
-    }
 }
 
 // ── cleanupTestCase ───────────────────────────────────────────────────────────
