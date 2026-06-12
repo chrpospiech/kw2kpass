@@ -58,6 +58,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+#include <cstdlib>
 #include <set>
 #include <string>
 
@@ -168,7 +170,8 @@ void TestReadWallet::setupTestFixture() {
             const QByteArray msg = QStringLiteral("kwalletd5 %1 failed while populating scratch fixture: %2")
                                        .arg(QString::fromLatin1(method), reply.errorMessage())
                                        .toUtf8();
-            QSKIP(msg.constData());
+            fprintf(stdout, "SKIP   : %s\n", msg.constData());
+            std::exit(222);
         }
     };
 
@@ -210,12 +213,14 @@ void TestReadWallet::initTestCase() {
     // ── Step 1: verify kwalletd5 is reachable ────────────────────────────────
     QDBusConnection bus = QDBusConnection::sessionBus();
     if (!bus.isConnected() || !bus.interface()->isServiceRegistered("org.kde.kwalletd5")) {
-        QSKIP("kwalletd5 is not registered on the session bus");
+        fprintf(stdout, "SKIP   : kwalletd5 is not registered on the session bus\n");
+        std::exit(222);
     }
 
     m_iface = new QDBusInterface("org.kde.kwalletd5", "/modules/kwalletd5", "org.kde.KWallet", bus, this);
     if (!m_iface->isValid()) {
-        QSKIP("DBus interface to kwalletd5 is not valid");
+        fprintf(stdout, "SKIP   : DBus interface to kwalletd5 is not valid\n");
+        std::exit(222);
     }
 
     // ── Step 2: import wallet archive if present ─────────────────────────────
@@ -228,7 +233,9 @@ void TestReadWallet::initTestCase() {
     // the same name as this test fixture.
     if (QFile::exists(walletDir() + QLatin1String("/kw2kpass_test.kwl")) ||
         QFile::exists(walletDir() + QLatin1String("/kw2kpass_test.salt"))) {
-        QSKIP("A wallet named kw2kpass_test already exists in the kwalletd directory; refusing to overwrite/delete it");
+        fprintf(stdout, "SKIP   : A wallet named kw2kpass_test already exists in the kwalletd directory; refusing to "
+                        "overwrite/delete it\n");
+        std::exit(222);
     }
 
     const QString archive = testDataArchive();
@@ -237,7 +244,8 @@ void TestReadWallet::initTestCase() {
         QProcess tar;
         tar.start("tar", {"-xf", archive, "-C", walletDir(), "kw2kpass_test.kwl", "kw2kpass_test.salt"});
         if (!tar.waitForFinished(10000) || tar.exitCode() != 0) {
-            QSKIP("Failed to extract the test wallet archive into the kwalletd directory");
+            fprintf(stdout, "SKIP   : Failed to extract the test wallet archive into the kwalletd directory\n");
+            std::exit(222);
         }
         m_imported = true;
     }
@@ -261,8 +269,9 @@ void TestReadWallet::initTestCase() {
     if (!opened) {
         if (m_imported)
             removeImportedFiles();
-        QSKIP("pamOpen did not open the test wallet within 3 s "
-              "(daemon policy restriction or wrong password on the imported file)");
+        fprintf(stdout, "SKIP   : pamOpen did not open the test wallet within 3 s "
+                        "(daemon policy restriction or wrong password on the imported file)\n");
+        std::exit(222);
     }
 
     // ── Step 4: acquire a per-session DBus handle ────────────────────────────
@@ -272,7 +281,8 @@ void TestReadWallet::initTestCase() {
     if (!openReply.isValid() || openReply.value() < 0) {
         if (m_imported)
             removeImportedFiles();
-        QSKIP("Could not obtain a kwalletd handle for the test wallet");
+        fprintf(stdout, "SKIP   : Could not obtain a kwalletd handle for the test wallet\n");
+        std::exit(222);
     }
     m_handle = openReply.value();
 
