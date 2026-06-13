@@ -74,11 +74,7 @@ endif()
 # List of source and include files   #
 ######################################
 
-set(READ_KW_SOURCES
-    src/wallethandle.cpp
-    src/readKwallet.cpp)
-
-set(KW2PW_SOURCES
+set(KW2KP_SOURCES
     src/wallethandle.cpp
     src/wrap_pybind_kw.cpp)
 
@@ -88,14 +84,11 @@ include_directories(include)
 # Names of executable and library    #
 ######################################
 
-add_executable( readKwallet
-  ${READ_KW_SOURCES} )
-
 # See https://pybind11.readthedocs.io/en/stable/compiling.html
 # for details on pybind11_add_module.
 
 pybind11_add_module( kwallet MODULE
-  ${KW2PW_SOURCES} )
+  ${KW2KP_SOURCES} )
 
 ######################################
 # Adding Qt5, Python and KDE libs    #
@@ -106,13 +99,6 @@ pybind11_add_module( kwallet MODULE
 # target_link_libraries (kwallet ...)
 # below (e.g. ${PYTHON_LIBRARIES}.
 
-target_link_libraries (readKwallet
-  	${Qt5Core_LIBRARIES}
-  	${Qt5Gui_LIBRARIES}
-  	${Qt5Widgets_LIBRARIES}
-    ${Python3_LIBRARIES}
-    )
-
 target_link_libraries (kwallet PRIVATE
   	${Qt5Core_LIBRARIES}
   	${Qt5Gui_LIBRARIES}
@@ -120,9 +106,6 @@ target_link_libraries (kwallet PRIVATE
     ${Python3_LIBRARIES}
     )
 
-target_link_libraries (readKwallet
-	KF5::CoreAddons
-	KF5::Wallet)
 target_link_libraries (kwallet PRIVATE
 	KF5::CoreAddons
 	KF5::Wallet)
