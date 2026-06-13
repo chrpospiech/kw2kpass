@@ -20,7 +20,7 @@ endif()
 set(CMAKE_AUTOMOC ON)
 
 add_executable(test_closed_wallet
-    test_closed_wallet.cpp
+    src/test_closed_wallet.cpp
     ${CMAKE_SOURCE_DIR}/readKwallet/src/wallethandle.cpp
 )
 
@@ -54,7 +54,7 @@ set_tests_properties(closed_wallet PROPERTIES
 ######################################
 
 add_executable(test_read_wallet
-    test_read_wallet.cpp
+    src/test_read_wallet.cpp
     ${CMAKE_SOURCE_DIR}/readKwallet/src/wallethandle.cpp
 )
 
