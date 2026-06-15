@@ -69,6 +69,8 @@
 
 #include <WalletHandle>
 
+#include <TestReadWallet>
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 namespace {
@@ -80,72 +82,36 @@ const char FOLDER_FORM_DATA[] = "Form Data";
 const char FOLDER_TEST[] = "test_folder";
 } // namespace
 
-// ── Test class ───────────────────────────────────────────────────────────────
+// ── Private helpers ─────────────────────────────────────────────────────────
 
-class TestReadWallet : public QObject {
-    Q_OBJECT
+// Key material for pamOpen.
+// kwalletd's openPreHashed() only accepts 20, 40, or 56 bytes (the latter
+// being PBKDF2_SHA512_KEYSIZE).  A raw SHA-512 digest is 64 bytes and is
+// therefore rejected with error -42.  We truncate to 56 bytes so the size
+// check passes and the value is used directly as the Blowfish key.
+// (pam_kwallet5 derives its 56-byte key via PBKDF2-HMAC-SHA512(password,
+// salt-file, 50000 iters) — here we skip the PBKDF2 step and use the
+// first 56 bytes of the raw SHA-512 digest as a deterministic test key.)
+QByteArray TestReadWallet::passwordHash() {
+    return QCryptographicHash::hash(WALLET_PASSWORD, QCryptographicHash::Sha512).left(56);
+}
 
-  private:
-    int m_handle = -1;
-    QDBusInterface *m_iface = nullptr;
+// Directory where kwalletd stores .kwl files on this system.
+QString TestReadWallet::walletDir() {
+    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/kwalletd");
+}
 
-    // Key material for pamOpen.
-    // kwalletd's openPreHashed() only accepts 20, 40, or 56 bytes (the latter
-    // being PBKDF2_SHA512_KEYSIZE).  A raw SHA-512 digest is 64 bytes and is
-    // therefore rejected with error -42.  We truncate to 56 bytes so the size
-    // check passes and the value is used directly as the Blowfish key.
-    // (pam_kwallet5 derives its 56-byte key via PBKDF2-HMAC-SHA512(password,
-    // salt-file, 50000 iters) — here we skip the PBKDF2 step and use the
-    // first 56 bytes of the raw SHA-512 digest as a deterministic test key.)
-    static QByteArray passwordHash() {
-        return QCryptographicHash::hash(WALLET_PASSWORD, QCryptographicHash::Sha512).left(56);
-    }
+// Path to the test-data tar archive in the source tree.
+// KWALLET_TEST_DATA_DIR is set by CMake to tests/test_data.
+QString TestReadWallet::testDataArchive() {
+    return QLatin1String(KWALLET_TEST_DATA_DIR) + QLatin1String("/kw2kpass_test");
+}
 
-    // Directory where kwalletd stores .kwl files on this system.
-    static QString walletDir() {
-        return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/kwalletd");
-    }
-
-    // Path to the test-data tar archive in the source tree.
-    // KWALLET_TEST_DATA_DIR is set by CMake to tests/test_data.
-    static QString testDataArchive() { return QLatin1String(KWALLET_TEST_DATA_DIR) + QLatin1String("/kw2kpass_test"); }
-
-    // Remove the .kwl and .salt files placed in the wallet directory.
-    void removeImportedFiles() {
-        QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.kwl"));
-        QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.salt"));
-    }
-
-  private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
-    // ── Folder existence ──────────────────────────────────────────────────────
-    void hasFolderPasswords();
-    void hasFolderFormData();
-    void hasFolderTestFolder();
-
-    // ── Password-type entries (Passwords folder) ──────────────────────────────
-    void hasEntryExample1();
-    void passwordExample1IsEmpty();
-    void usernameExample1IsEmpty();
-    void hasEntryExample2();
-    void passwordExample2IsEmpty();
-
-    // ── Map-type entry "test_map" (Passwords folder) ──────────────────────────
-    void hasEntryTestMap();
-    void passwordTestMap();
-    void usernameTestMap();
-    void hostnameTestMap();
-
-    // ── Password-type entry in test_folder ────────────────────────────────────
-    void hasEntryExample3();
-    void passwordExample3IsEmpty();
-
-    // ── WalletIterator ────────────────────────────────────────────────────────
-    void iteratorPasswordsFolder();
-    void iteratorTestFolder();
-};
+// Remove the .kwl and .salt files placed in the wallet directory.
+void TestReadWallet::removeImportedFiles() {
+    QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.kwl"));
+    QFile::remove(walletDir() + QLatin1String("/kw2kpass_test.salt"));
+}
 
 // ── initTestCase ─────────────────────────────────────────────────────────────
 
@@ -346,5 +312,6 @@ void TestReadWallet::iteratorTestFolder() {
     QCOMPARE(static_cast<int>(found.size()), 1);
 }
 
+#ifndef BUILDING_PYBIND_MODULE
 QTEST_GUILESS_MAIN(TestReadWallet)
-#include "test_read_wallet.moc"
+#endif

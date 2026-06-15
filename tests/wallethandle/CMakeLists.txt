@@ -55,11 +55,13 @@ set_tests_properties(closed_wallet PROPERTIES
 
 add_executable(test_read_wallet
     src/test_read_wallet.cpp
+    include/test_read_wallet.hpp
     ${CMAKE_SOURCE_DIR}/readKwallet/src/wallethandle.cpp
 )
 
 target_include_directories(test_read_wallet PRIVATE
     ${CMAKE_SOURCE_DIR}/readKwallet/include
+    ${CMAKE_SOURCE_DIR}/tests/wallethandle/include
 )
 
 target_compile_features(test_read_wallet PRIVATE cxx_std_14)
@@ -85,4 +87,47 @@ add_test(NAME read_wallet COMMAND test_read_wallet)
 set_property(
     TEST read_wallet
     PROPERTY SKIP_RETURN_CODE 222
+)
+
+######################################
+# pybind module to create tests      #
+######################################
+
+# See https://pybind11.readthedocs.io/en/stable/compiling.html
+# for details on pybind11_add_module.
+
+pybind11_add_module( test_wallet MODULE
+    src/test_read_wallet.cpp
+    include/test_read_wallet.hpp
+    src/wrap_pybind_test_wallet.cpp
+)
+
+target_include_directories(test_wallet PRIVATE
+    ${CMAKE_SOURCE_DIR}/readKwallet/include
+    ${CMAKE_SOURCE_DIR}/tests/wallethandle/include
+)
+
+target_compile_features(test_wallet PRIVATE cxx_std_14)
+
+# BUILDING_PYBIND_MODULE suppresses QTEST_GUILESS_MAIN in test_read_wallet.cpp.
+# KWALLET_TEST_DATA_DIR mirrors the definition used by the test_read_wallet
+# executable so that testDataArchive() resolves to the same archive path.
+target_compile_definitions(test_wallet PRIVATE
+    BUILDING_PYBIND_MODULE
+    KWALLET_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../test_data"
+)
+
+target_link_libraries(test_wallet PRIVATE
+    Qt5::Core
+    Qt5::DBus
+    Qt5::Widgets
+    Qt5::Test
+    KF5::CoreAddons
+    KF5::Wallet
+)
+
+add_custom_command(TARGET test_wallet POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:test_wallet>
+        "${CMAKE_SOURCE_DIR}/$<TARGET_FILE_NAME:test_wallet>"
 )

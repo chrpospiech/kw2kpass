@@ -9,3 +9,4 @@ __pycache__
 creds.yaml
 kwallet*.so
 keepass*.so
+test_wallet*.so
