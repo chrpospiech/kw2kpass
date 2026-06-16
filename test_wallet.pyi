@@ -53,6 +53,7 @@ class TestReadWallet:
         Exits with code 222 when any prerequisite is missing so CTest
         reports the test as *Skipped*.
         """
+        ...
 
     def cleanupTestCase(self) -> None:
         """Delete the test wallet and remove imported files (tearDown).
