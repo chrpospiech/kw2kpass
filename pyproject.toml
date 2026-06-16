@@ -81,3 +81,6 @@ convention = "google"  # Accepts: "google", "numpy", or "pep257".
 # using = "PEP631:lint"
 # fail_licenses = ["GPL"]
 # zero = true
+
+[tool.codespell]
+ignore-words-list = "assertIn"
