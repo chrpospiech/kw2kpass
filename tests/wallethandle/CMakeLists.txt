@@ -100,6 +100,7 @@ pybind11_add_module( test_wallet MODULE
     src/test_read_wallet.cpp
     include/test_read_wallet.hpp
     src/wrap_pybind_test_wallet.cpp
+    ${CMAKE_SOURCE_DIR}/readKwallet/src/wallethandle.cpp
 )
 
 target_include_directories(test_wallet PRIVATE
@@ -130,4 +131,27 @@ add_custom_command(TARGET test_wallet POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:test_wallet>
         "${CMAKE_SOURCE_DIR}/$<TARGET_FILE_NAME:test_wallet>"
+)
+
+######################################
+# run_read_wallet_py.py: Python test  #
+######################################
+
+add_test(
+    NAME read_wallet_py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run_read_wallet_py.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+set_property(
+    TEST read_wallet_py
+    PROPERTY ENVIRONMENT
+    PYTHONPATH=${CMAKE_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}:$ENV{PYTHONPATH}
+)
+
+# This test needs the live kwalletd5 daemon and the test wallet archive to run.
+# It returns 222 when prerequisites are not met, causing CTest to mark this test as skipped.
+set_property(
+    TEST read_wallet_py
+    PROPERTY SKIP_RETURN_CODE 222
 )
