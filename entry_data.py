@@ -91,13 +91,13 @@ def translate_entry(in_data: dict[str, str]) -> dict[str, str]:
     # password entries return empty username and hostname.
     if not str(uid):
         logger.debug(f"entry {title} is an ordinary password entry")
-        titleParts = re.split(r"\@", title)
-        if len(titleParts) > 1:
-            uid = titleParts[0]
-            host = titleParts[1]
+        title_parts = title.split("@", 1)
+        if len(title_parts) > 1:
+            uid = title_parts[0]
+            host = title_parts[1]
         else:
             uid = ""
-            host = titleParts[0]
+            host = title_parts[0]
     else:
         logger.debug(f"entry {title} is a map entry")
     return {
