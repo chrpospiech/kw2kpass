@@ -28,8 +28,11 @@ logger = logging.getLogger("kw2kpass")
 def open_wallet(Wname):
     """Open Kwallet "Wname".
 
-    @summary: Opens Kwallet "Wname"
-    @return: Handle to the open wallet.
+    Args:
+        Wname: Name of the KWallet to open.
+
+    Returns:
+        Handle to the open wallet.
     """
     wh = WalletHandle(Wname)
     if not wh.wallet_is_open():
@@ -43,9 +46,14 @@ def open_wallet(Wname):
 def set_wallet_folder(wallet, Wfolder):
     """Validate and set the active folder in an open wallet.
 
-    @summary: Checks that Wfolder exists in wallet and sets it as active.
-    @param wallet: Kwallet handle
-    @param Wfolder: Kwallet folder name
+    Checks that Wfolder exists in wallet and sets it as active.
+
+    Args:
+        wallet: Kwallet handle.
+        Wfolder: Kwallet folder name.
+
+    Returns:
+        None
     """
     if wallet.hasFolder(Wfolder):
         logger.info(f"folder {Wfolder} found")

@@ -28,7 +28,16 @@ logger = logging.getLogger("kw2kpass")
 
 
 def open_database(Kinfile: str | None, Koutfile: str, Kpasswd: str | None) -> PyKeePass:
-    """Open an existing KDBX database, or return a new empty database."""
+    """Open an existing KDBX database, or return a new empty database.
+
+    Args:
+        Kinfile: Path to the existing KDBX file, or None to create a new one.
+        Koutfile: Path used when creating a new database.
+        Kpasswd: Password for the database, or None for no password.
+
+    Returns:
+        An open PyKeePass database instance.
+    """
     if Kinfile is None:
         logger.info("Creating new empty KeePass database at %s", Koutfile)
         # pykeepass requires a path when creating a database.
@@ -39,7 +48,16 @@ def open_database(Kinfile: str | None, Koutfile: str, Kpasswd: str | None) -> Py
 
 
 def close_database(database: PyKeePass, Koutfile: str, Kpasswd: str | None) -> None:
-    """Export a database to KDBX format."""
+    """Export a database to KDBX format.
+
+    Args:
+        database: Open KeePass database to save.
+        Koutfile: Destination path for the KDBX file.
+        Kpasswd: Password to set on the output database, or None to keep existing.
+
+    Returns:
+        None
+    """
     if Kpasswd is not None:
         database.password = Kpasswd
     logger.info("Exporting KeePass database to %s", Koutfile)
@@ -55,10 +73,13 @@ def find_or_create_entry(database: PyKeePass, group: str, title: str) -> Entry:
     group. In either missing case, a new Entry with the given title is
     appended to the group and returned.
 
-    @param database: Open KeePass database.
-    @param group: Name of the target group (created under root if absent).
-    @param title: Title of the entry to find or create.
-    @return: The existing or newly created Entry.
+    Args:
+        database: Open KeePass database.
+        group: Name of the target group (created under root if absent).
+        title: Title of the entry to find or create.
+
+    Returns:
+        The existing or newly created Entry.
     """
     target_group = database.find_groups(name=group, first=True)
 

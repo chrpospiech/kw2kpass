@@ -45,11 +45,15 @@ logger = logging.getLogger("kw2kpass")
 def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
     """Copy filtered entries from Wname:Wfolder into KeePass group.
 
-    @param wallet: Kwallet handle
-    @param Wfolder: Kwallet folder
-    @param Wfilter: Filter to filter entries
-    @param dbase: KeePassXC database handle
-    @param group: KeePassXC group name (created under root if absent)
+    Args:
+        wallet: Kwallet handle
+        Wfolder: Kwallet folder
+        Wfilter: Filter to filter entries
+        dbase: KeePassXC database handle
+        group: KeePassXC group name (created under root if absent)
+
+    Returns:
+        None
     """
     set_wallet_folder(wallet, Wfolder)
     for e in WalletIterator(wallet):
