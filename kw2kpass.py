@@ -28,9 +28,9 @@
 # Standard python modules
 # logger for verbose mode
 import logging
-import re
 
 from cli import get_options_and_defaults
+from entry_data import get_entry_data
 from keepass_utils import close_database, find_or_create_entry, open_database
 from kwallet import WalletIterator
 from wallet_utils import open_wallet, set_wallet_folder
@@ -57,29 +57,13 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
     """
     set_wallet_folder(wallet, Wfolder)
     for e in WalletIterator(wallet):
-        title = str(e)
-        uid = wallet.username(e)
-        host = wallet.hostname(e)
-        passwd = wallet.password(e)
-        # Skip the entry that lists the URLs without password saving
-        if passwd == "n/a":
-            logger.debug(f"entry {title}  has no password")
+        entry_data = get_entry_data(wallet, e)
+        if not entry_data:
             continue
-        """
-		Entries in Kwallet can be password or map entries;
-		password entries return empty username and hostname.
-		"""
-        if not str(uid):
-            logger.debug(f"entry {title} is an ordinary password entry")
-            titleParts = re.split(r"\@", title)
-            if len(titleParts) > 1:
-                uid = titleParts[0]
-                host = titleParts[1]
-            else:
-                uid = ""
-                host = titleParts[0]
-        else:
-            logger.debug(f"entry {title} is a map entry")
+        title = entry_data["title"]
+        uid = entry_data["username"]
+        host = entry_data["hostname"]
+        passwd = entry_data["password"]
         # Skip the entry if it does not match the filter
         if not Wfilter.search(f"{uid}{host}"):
             logger.info(f"entry {title} has been filtered out")
