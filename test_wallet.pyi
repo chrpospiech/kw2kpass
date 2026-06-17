@@ -61,4 +61,3 @@ class TestReadWallet:
         Calls kwalletd5's deleteWallet and removes the .kwl / .salt
         files that initTestCase placed in the kwalletd directory.
         """
-        ...
