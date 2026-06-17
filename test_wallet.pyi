@@ -53,7 +53,6 @@ class TestReadWallet:
         Exits with code 222 when any prerequisite is missing so CTest
         reports the test as *Skipped*.
         """
-        ...
 
     def cleanupTestCase(self) -> None:
         """Delete the test wallet and remove imported files (tearDown).
@@ -61,4 +60,3 @@ class TestReadWallet:
         Calls kwalletd5's deleteWallet and removes the .kwl / .salt
         files that initTestCase placed in the kwalletd directory.
         """
-        ...

@@ -119,19 +119,23 @@ def _build_parser() -> argparse.ArgumentParser:
 def get_options_and_defaults(argv=None):
     """Parse command-line options and return runtime configuration.
 
-    @summary: Parses argv (defaults to sys.argv[1:]) and returns
-              the wallet name, compiled filter regex, folder→group map,
-              input file, output file, and KeePass password.
-    @param argv: Argument list to parse (None → sys.argv[1:]).
-    @return: Tuple (
-        wallet_name: str,
-        filter: re.Pattern,
-        map: dict[str, str],
-        infile: str | None,
-        outfile: str,
-        inpasswd: str | None,
-        outpasswd: str | None,
-    ).
+    Parses argv (defaults to sys.argv[1:]) and returns the wallet name,
+    compiled filter regex, folder→group map, input file, output file,
+    and KeePass password.
+
+    Args:
+        argv: Argument list to parse (None → sys.argv[1:]).
+
+    Returns:
+        Tuple (
+            wallet_name: str,
+            filter: re.Pattern,
+            map: dict[str, str],
+            infile: str | None,
+            outfile: str,
+            inpasswd: str | None,
+            outpasswd: str | None,
+        ).
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
