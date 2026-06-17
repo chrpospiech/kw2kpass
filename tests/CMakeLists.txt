@@ -9,3 +9,4 @@
 
 add_subdirectory(cli_options)
 add_subdirectory(wallethandle)
+add_subdirectory(translate_entry)

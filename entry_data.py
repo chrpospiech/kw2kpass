@@ -51,6 +51,17 @@ def get_entry_data(wallet: WalletHandle, key: str) -> dict[str, str]:
 def translate_entry(in_data: dict[str, str]) -> dict[str, str]:
     """Translate Kwallet entry data into a format suitable for KeePass.
 
+    - If the password is "n/a", the entry is skipped.
+    - Some titles in Kwallet contain the hostname twice.
+      The second occurrence is redundant and can be removed.
+      It is identified by the presence of ",,http" in the title.
+      In this case the title is chopped at the first occurrence of ",,http".
+    - If the username is empty, the entry is treated
+      as an ordinary password entry, and the title is split
+      into username and hostname using "@" as a separator.
+    - Otherwise, the entry is treated as a map entry,
+      and the username and hostname are used as is.
+
     Args:
         in_data: A dictionary containing the raw entry data.
 
@@ -70,11 +81,17 @@ def translate_entry(in_data: dict[str, str]) -> dict[str, str]:
     if passwd == "n/a":
         logger.debug(f"entry {wallet_title}  has no password")
         return {}
+    # Remove redundant hostname in title if present
+    if ",,http" in wallet_title:
+        title = wallet_title.split(",,http")[0]
+        logger.debug(f"entry {wallet_title} contains redundant hostname, removed it")
+    else:
+        title = wallet_title
     # Entries in Kwallet can be password or map entries;
     # password entries return empty username and hostname.
     if not str(uid):
-        logger.debug(f"entry {wallet_title} is an ordinary password entry")
-        titleParts = re.split(r"\@", wallet_title)
+        logger.debug(f"entry {title} is an ordinary password entry")
+        titleParts = re.split(r"\@", title)
         if len(titleParts) > 1:
             uid = titleParts[0]
             host = titleParts[1]
@@ -82,9 +99,9 @@ def translate_entry(in_data: dict[str, str]) -> dict[str, str]:
             uid = ""
             host = titleParts[0]
     else:
-        logger.debug(f"entry {wallet_title} is a map entry")
+        logger.debug(f"entry {title} is a map entry")
     return {
-        "title": wallet_title,
+        "title": title,
         "username": uid,
         "hostname": host,
         "password": passwd,
