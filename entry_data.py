@@ -27,7 +27,7 @@ logger = logging.getLogger("kw2kpass")
 
 
 def get_entry_data(wallet: WalletHandle, key: str) -> dict[str, str]:
-    """Extract and process the data for a given entry key.
+    """Extract the data for a given entry key.
 
     Args:
         wallet: The wallet handle to access the entry data.
@@ -37,15 +37,36 @@ def get_entry_data(wallet: WalletHandle, key: str) -> dict[str, str]:
         A dictionary containing the entry data, or an empty dictionary if an error occurs.
     """
     try:
-        wallet_title = str(key)
-        logger.debug(f"Processing entry '{wallet_title}' with key '{key}'")
-        uid = wallet.username(key)
-        host = wallet.hostname(key)
-        passwd = wallet.password(key)
+        return {
+            "title": str(key),
+            "username": wallet.username(key),
+            "hostname": wallet.hostname(key),
+            "password": wallet.password(key),
+        }
     except RuntimeError as e:
         logger.error(f"Failed to get data for entry '{key}': {e}")
         return {}
+
+
+def translate_entry(in_data: dict[str, str]) -> dict[str, str]:
+    """Translate Kwallet entry data into a format suitable for KeePass.
+
+    Args:
+        in_data: A dictionary containing the raw entry data.
+
+    Returns:
+        A dictionary containing the entry data, or an empty dictionary if an error occurs.
+    """
+    try:
+        wallet_title = in_data["title"]
+        uid = in_data["username"]
+        host = in_data["hostname"]
+        passwd = in_data["password"]
+    except KeyError as e:
+        logger.error(f"Missing key in entry data. Error: {e}")
+        return {}
     # Skip the entry that lists the URLs without password saving
+    logger.debug(f"Processing entry '{wallet_title}' \nwith username '{uid}' and hostname '{host}'")
     if passwd == "n/a":
         logger.debug(f"entry {wallet_title}  has no password")
         return {}

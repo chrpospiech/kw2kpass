@@ -30,7 +30,7 @@
 import logging
 
 from cli import get_options_and_defaults
-from entry_data import get_entry_data
+from entry_data import get_entry_data, translate_entry
 from keepass_utils import close_database, find_or_create_entry, open_database
 from kwallet import WalletIterator
 from wallet_utils import open_wallet, set_wallet_folder
@@ -57,7 +57,7 @@ def copy_wallet_folder(wallet, Wfolder, Wfilter, dbase, group):
     """
     set_wallet_folder(wallet, Wfolder)
     for e in WalletIterator(wallet):
-        entry_data = get_entry_data(wallet, e)
+        entry_data = translate_entry(get_entry_data(wallet, e))
         if not entry_data:
             continue
         title = entry_data["title"]
