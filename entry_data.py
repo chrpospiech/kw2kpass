@@ -19,7 +19,6 @@
 """Helper for setting up KeePass entries."""
 
 import logging
-import re
 
 from kwallet import WalletHandle
 
