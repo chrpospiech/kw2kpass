@@ -121,6 +121,25 @@ python kw2kpass.py \
 - Entries with password `n/a` are skipped.
 - Existing KeePass entries are matched by `(group, title)` and updated in place.
 
+### Entry translation (`entry_data.py`)
+
+Each KWallet entry passes through `translate_entry()` before being written to
+the KeePass database:
+
+1. **Skip no-password entries** — entries whose password value is `n/a` are
+   discarded entirely.
+1. **Strip redundant hostname from title** — some KWallet titles contain the
+   URL a second time after `,,http`. Everything from `,,http` onwards is
+   removed, e.g. `user@example.com,,http://example.com` → `user@example.com`.
+1. **Password entries** (KWallet returns an empty username and hostname) —
+   the title is split at the first `@` to derive username and hostname:
+   `user@example.com` → username `user`, hostname `example.com`. If no `@`
+   is present the whole title is used as the hostname and username is left
+   empty.
+1. **Map entries** (KWallet returns a non-empty username) — username and
+   hostname are taken directly from the wallet fields; the title is used
+   as-is (after any redundant hostname removal).
+
 ## Tests
 
 After building (see [Build](#build)), run the unit tests with CTest from the
@@ -135,6 +154,17 @@ To see test output on failure:
 ```sh
 ctest --test-dir build --output-on-failure
 ```
+
+The CTest suite covers:
+
+- **`tests/translate_entry/`** — Python unit tests for `translate_entry()` in
+  `entry_data.py` (missing keys, `n/a` password, redundant hostname stripping,
+  password entries, and map entries).
+- **`tests/cli_options/`** — Python unit tests for `get_options_and_defaults()`
+  in `cli.py` (default values, folder→group mapping, filter regex, password
+  handling).
+- **`tests/wallethandle/`** — C++ tests for the `WalletHandle` extension
+  (open/closed wallet, read wallet).
 
 ## Developer notes
 
