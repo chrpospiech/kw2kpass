@@ -3,6 +3,12 @@
 kw2kpass reads entries from KDE KWallet folders and writes them into a KeePass
 KDBX database.
 
+**The current version is built with Qt5 an KDE Framework 5**
+If a port to Qt6 and KDE Framework 6 is needed, please open an
+[issue](https://github.com/chrpospiech/kw2kpass/issues/new) to
+request a port. Otherwise, there is no plan for a port to current
+Qt versions anytime soon.
+
 ## Features
 
 - Read credentials from a selected KWallet (default: `kdewallet`).
